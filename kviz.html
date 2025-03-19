@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Kvíz</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        button { margin: 10px; padding: 10px; }
+    </style>
+</head>
+
+<body>
+    <h1>Kvíz</h1>
+    <div id="question">Načítám otázku...</div>
+    <button onclick="checkAnswer(true)">Pravda</button>
+    <button onclick="checkAnswer(false)">Nepravda</button>
+    <p id="result"></p>
+
+    <script>
+        const questions = [
+            { question: "Slunce je planeta.", correct: false },
+            { question: "Kočka je savec.", correct: true },
+            { question: "2 + 2 = 5", correct: false }
+        ];
+        let currentQuestion = 0;
+
+        function loadQuestion() {
+            document.getElementById("question").textContent = questions[currentQuestion].question;
+        }
+
+        function checkAnswer(answer) {
+            const result = document.getElementById("result");
+            if (answer === questions[currentQuestion].correct) {
+                result.textContent = "Správně!";
+            } else {
+                result.textContent = "Špatně!";
+            }
+            currentQuestion = (currentQuestion + 1) % questions.length;
+            setTimeout(loadQuestion, 1000);
+        }
+
+        loadQuestion();
+    </script>
+</body>
+
+</html>

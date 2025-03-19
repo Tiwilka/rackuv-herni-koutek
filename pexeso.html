@@ -3,73 +3,73 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Vylepšené Pexeso</title>
+    <title>Pexeso</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        h1 { color: #2c3e50; }
-        #game-board { display: grid; grid-template-columns: repeat(4, 120px); gap: 10px; justify-content: center; }
-        .card { width: 120px; height: 120px; background: #3498db; color: white; font-size: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; }
-        .card.flipped { background: #ecf0f1; color: #2c3e50; }
-        #message { margin-top: 30px; font-size: 24px; color: #27ae60; }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(4, 100px); gap: 10px; justify-content: center; }
+        .card { width: 100px; height: 100px; background: lightblue; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; }
+        .hidden { background: gray; }
     </style>
 </head>
 <body>
-    <h1>🧠 Vylepšené Pexeso</h1>
-    <div id="game-board"></div>
-    <div id="message"></div>
+    <h1>Pexeso</h1>
+    <div class="grid" id="grid"></div>
+    <p id="message"></p>
 
     <script>
-        const emojis = ["🍎", "🍎", "🍌", "🍌", "🍉", "🍉", "🍇", "🍇", "🍓", "🍓", "🍍", "🍍", "🥥", "🥥", "🥝", "🥝"];
-        const shuffled = emojis.sort(() => Math.random() - 0.5);
-        const board = document.getElementById("game-board");
+        const emojis = ["🍎", "🍌", "🍉", "🍇", "🍒", "🍋", "🍓", "🍍"];
+        let cards = [...emojis, ...emojis];
         let flippedCards = [];
         let matchedPairs = 0;
 
-        // Vytvoření hracích karet
-        shuffled.forEach((emoji, index) => {
-            const card = document.createElement("div");
-            card.className = "card";
-            card.dataset.index = index;
-            card.dataset.emoji = emoji;
-            card.addEventListener("click", flipCard);
-            board.appendChild(card);
-        });
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createBoard() {
+            const grid = document.getElementById("grid");
+            shuffle(cards);
+            cards.forEach((emoji, index) => {
+                const card = document.createElement("div");
+                card.className = "card hidden";
+                card.dataset.index = index;
+                card.addEventListener("click", flipCard);
+                grid.appendChild(card);
+            });
+        }
 
         function flipCard() {
-            if (flippedCards.length < 2 && !this.classList.contains("flipped")) {
-                this.textContent = this.dataset.emoji;
-                this.classList.add("flipped");
+            if (flippedCards.length < 2) {
+                const index = this.dataset.index;
+                this.textContent = cards[index];
+                this.classList.remove("hidden");
                 flippedCards.push(this);
-                if (flippedCards.length === 2) checkMatch();
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 500);
+                }
             }
         }
 
         function checkMatch() {
             const [card1, card2] = flippedCards;
-            if (card1.dataset.emoji === card2.dataset.emoji) {
+            if (card1.textContent === card2.textContent) {
                 matchedPairs++;
-                flippedCards = [];
-                if (matchedPairs === emojis.length / 2) showVictoryMessage();
+                if (matchedPairs === emojis.length) {
+                    document.getElementById("message").textContent = "🎉 Gratulujeme, vyhrál/a jsi!";
+                }
             } else {
-                setTimeout(() => {
-                    card1.textContent = "";
-                    card2.textContent = "";
-                    card1.classList.remove("flipped");
-                    card2.classList.remove("flipped");
-                    flippedCards = [];
-                }, 1000);
+                card1.textContent = "";
+                card2.textContent = "";
+                card1.classList.add("hidden");
+                card2.classList.add("hidden");
             }
+            flippedCards = [];
         }
 
-        function generateUniqueCode() {
-            return Math.random().toString(36).substring(2, 10).toUpperCase();
-        }
-
-        function showVictoryMessage() {
-            const messageDiv = document.getElementById("message");
-            const uniqueCode = generateUniqueCode();
-            messageDiv.innerHTML = `🎉 Gratulujeme! Vyhrál/a jsi!<br>Tvůj unikátní kód: <strong>${uniqueCode}</strong>`;
-        }
+        createBoard();
     </script>
 </body>
 </html>
