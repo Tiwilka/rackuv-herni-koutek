@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Šibenice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #word-display {
+            font-size: 32px;
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+        }
+        #message {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Šibenice</h1>
+    <div id="word-display">_ _ _ _ _</div>
+    <input type="text" id="guess" maxlength="1" placeholder="Hádej písmeno" />
+    <button onclick="checkLetter()">Hádej!</button>
+    <p id="message"></p>
+
+    <script>
+        const words = ["JABLKO", "AUTO", "KOČKA", "HRAD", "STROM"];
+        let selectedWord = words[Math.floor(Math.random() * words.length)];
+        let guessedWord = Array(selectedWord.length).fill("_");
+        let attempts = 7;
+
+        function updateDisplay() {
+            document.getElementById("word-display").textContent = guessedWord.join(" ");
+        }
+
+        function checkLetter() {
+            const guessInput = document.getElementById("guess");
+            const letter = guessInput.value.toUpperCase();
+            guessInput.value = "";
+
+            if (letter && selectedWord.includes(letter)) {
+                for (let i = 0; i < selectedWord.length; i++) {
+                    if (selectedWord[i] === letter) {
+                        guessedWord[i] = letter;
+                    }
+                }
+            } else {
+                attempts--;
+            }
+
+            updateDisplay();
+
+            if (!guessedWord.includes("_")) {
+                document.getElementById("message").textContent = "🎉 Gratulujeme, vyhrál/a jsi!";
+            } else if (attempts <= 0) {
+                document.getElementById("message").textContent = "😢 Prohrál/a jsi! Slovo bylo: " + selectedWord;
+            }
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
