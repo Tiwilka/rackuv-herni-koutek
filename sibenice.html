@@ -1,127 +1,174 @@
 
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
     <meta charset="UTF-8">
     <title>Šibenice</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #5A3825; color: orange; }
-        h1 { margin-top: 20px; }
-        #word { letter-spacing: 10px; font-size: 24px; }
-        #message { margin: 20px; font-size: 20px; }
-        #hangman { margin: 20px; }
-        #wrong-letters { margin-top: 20px; }
-        .button-container { margin-top: 30px; }
-        button { padding: 10px 20px; margin: 5px; background-color: orange; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        canvas { border: 1px solid white; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .word-container {
+            margin: 20px 0;
+            letter-spacing: 10px;
+            font-size: 24px;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 5px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .key {
+            padding: 10px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .key:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+        .used-letters {
+            margin-top: 20px;
+        }
+        .hangman {
+            display: inline-block;
+            text-align: left;
+            line-height: 1.5;
+        }
     </style>
 </head>
+
 <body>
     <h1>Šibenice</h1>
-    <div id="hangman-container">
-        <canvas id="hangman" width="200" height="250"></canvas>
-    </div>
-    <p id="word"></p>
-    <p id="wrong-letters">Špatná písmena: <span id="wrong"></span></p>
-    <input type="text" id="guess" maxlength="1" placeholder="Hádej písmeno">
-    <button onclick="checkLetter()">Hádej</button>
-    <p id="message"></p>
-    <div class="button-container">
-        <button onclick="newGame()">Nová hra</button>
-        <a href="index.html"><button>Zpět na hlavní stránku</button></a>
-    </div>
+
+    <div id="hangman" class="hangman"></div>
+    <div id="word" class="word-container"></div>
+    <div id="message"></div>
+    <div id="usedLetters" class="used-letters"></div>
+
+    <div id="keyboard" class="keyboard"></div>
+
+    <button onclick="newGame()">Nová hra</button>
 
     <script>
-        const words = {
-            "Ovoce": ["jablko", "hruška", "meloun", "třešeň"],
-            "Zvířata": ["pes", "kočka", "lev", "slon"],
-            "Doprava": ["auto", "vlak", "letadlo", "kolo"]
-        };
+        const words = ["JABLKO", "HRUŠKA", "BANÁN", "POMERANČ", "TŘEŠEŇ"];
+        let chosenWord = "";
+        let guessedWord = [];
+        let wrongGuesses = 0;
+        let usedLetters = new Set();
+        const hangmanStages = [
+            "     
+     
+     
+     
+    ",
+            "     
+     
+     
+     
+=====",
+            "     |
+     |
+     |
+     |
+=====",
+            " +---|
+     |
+     |
+     |
+=====",
+            " +---|
+ O   |
+     |
+     |
+=====",
+            " +---|
+ O   |
+ |   |
+     |
+=====",
+            " +---|
+ O   |
+/|   |
+     |
+=====",
+            " +---|
+ O   |
+/|\  |
+     |
+=====",
+            " +---|
+ O   |
+/|\  |
+/    |
+=====",
+            " +---|
+ O   |
+/|\  |
+/ \  |
+====="
+        ];
 
-        let chosenCategory;
-        let chosenWord;
-        let guessedLetters = [];
-        let wrongLetters = [];
-        let attemptsLeft = 6;
-
-        function selectWord() {
-            const categories = Object.keys(words);
-            chosenCategory = categories[Math.floor(Math.random() * categories.length)];
-            const categoryWords = words[chosenCategory];
-            chosenWord = categoryWords[Math.floor(Math.random() * categoryWords.length)];
-            document.getElementById("word").textContent = "_ ".repeat(chosenWord.length);
-        }
-
-        function drawHangman() {
-            const canvas = document.getElementById("hangman");
-            const ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Kreslení šibenice
-            if (attemptsLeft <= 5) ctx.fillRect(20, 230, 100, 10); // základna
-            if (attemptsLeft <= 4) ctx.fillRect(50, 20, 10, 210); // sloup
-            if (attemptsLeft <= 3) ctx.fillRect(50, 20, 100, 10); // trám
-            if (attemptsLeft <= 2) ctx.fillRect(150, 20, 10, 40); // provaz
-            if (attemptsLeft <= 1) {
-                ctx.beginPath();
-                ctx.arc(155, 75, 25, 0, Math.PI * 2); // hlava
-                ctx.stroke();
-            }
-            if (attemptsLeft === 0) {
-                ctx.fillRect(150, 100, 10, 70); // tělo
-                ctx.fillRect(130, 120, 40, 10); // ruce
-                ctx.fillRect(140, 170, 20, 10); // nohy
-            }
-        }
-
-        function checkLetter() {
-            const input = document.getElementById("guess");
-            const letter = input.value.toLowerCase();
-
-            if (!letter || guessedLetters.includes(letter) || wrongLetters.includes(letter)) return;
-            input.value = "";
-
-            if (chosenWord.includes(letter)) {
-                guessedLetters.push(letter);
-            } else {
-                wrongLetters.push(letter);
-                attemptsLeft--;
-                drawHangman();
-            }
-
+        function newGame() {
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            guessedWord = Array(chosenWord.length).fill("_");
+            wrongGuesses = 0;
+            usedLetters.clear();
             updateDisplay();
-            checkGameOver();
+            renderKeyboard();
         }
 
         function updateDisplay() {
-            const displayWord = chosenWord.split("").map(letter => guessedLetters.includes(letter) ? letter : "_").join(" ");
-            document.getElementById("word").textContent = displayWord;
-            document.getElementById("wrong").textContent = wrongLetters.join(", ");
-        }
-
-        function checkGameOver() {
-            if (attemptsLeft === 0) {
-                document.getElementById("message").textContent = `Prohrál/a jsi! Slovo bylo: ${chosenWord}`;
-                document.getElementById("guess").disabled = true;
-            } else if (!document.getElementById("word").textContent.includes("_")) {
-                const uniqueCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-                document.getElementById("message").textContent = `🎉 Vyhrál/a jsi! Tvůj kód: ${uniqueCode}`;
-                document.getElementById("guess").disabled = true;
-            }
-        }
-
-        function newGame() {
-            guessedLetters = [];
-            wrongLetters = [];
-            attemptsLeft = 6;
-            document.getElementById("guess").disabled = false;
+            document.getElementById("word").textContent = guessedWord.join(" ");
             document.getElementById("message").textContent = "";
-            selectWord();
-            drawHangman();
+            document.getElementById("hangman").textContent = hangmanStages[wrongGuesses];
+            document.getElementById("usedLetters").textContent = `Použité písmena: ${Array.from(usedLetters).join(", ")}`;
         }
 
-        selectWord();
-        drawHangman();
+        function handleGuess(letter) {
+            if (usedLetters.has(letter)) return;
+            usedLetters.add(letter);
+
+            if (chosenWord.includes(letter)) {
+                chosenWord.split("").forEach((char, index) => {
+                    if (char === letter) guessedWord[index] = letter;
+                });
+            } else {
+                wrongGuesses++;
+            }
+
+            if (wrongGuesses >= hangmanStages.length - 1) {
+                document.getElementById("message").textContent = `Prohrál/a jsi! Slovo bylo: ${chosenWord}`;
+            } else if (!guessedWord.includes("_")) {
+                document.getElementById("message").textContent = "🎉 Gratulujeme, vyhrál/a jsi!";
+            }
+
+            updateDisplay();
+            renderKeyboard();
+        }
+
+        function renderKeyboard() {
+            const keyboardDiv = document.getElementById("keyboard");
+            keyboardDiv.innerHTML = "";
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            alphabet.forEach(letter => {
+                const button = document.createElement("button");
+                button.textContent = letter;
+                button.className = "key";
+                button.onclick = () => handleGuess(letter);
+                button.disabled = usedLetters.has(letter);
+                keyboardDiv.appendChild(button);
+            });
+        }
+
+        newGame();
     </script>
 </body>
+
 </html>
