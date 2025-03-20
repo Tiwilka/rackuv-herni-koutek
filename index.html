@@ -1,46 +1,90 @@
+📌 **Rackův herní koutek**
 
-<!DOCTYPE html>
-<html lang="cs">
+### 🎮 Vyber si svou oblíbenou hru:
 
-<head>
-    <meta charset="UTF-8">
-    <title>Vyber si hru</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        .game-link {
-            display: block;
-            margin: 20px auto;
-            padding: 20px;
-            font-size: 24px;
-            text-decoration: none;
-            color: white;
-            background-color: #4CAF50;
-            border-radius: 10px;
-            width: 300px;
-        }
-        .game-link:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
+<div class="game-grid">
+    <a href="pexeso.html" class="game-card">
+        <img src="icons/pexeso.png" alt="Pexeso" />
+        <span>Pexeso</span>
+    </a>
+    <a href="sibenice.html" class="game-card">
+        <img src="icons/sibenice.png" alt="Šibenice" />
+        <span>Šibenice</span>
+    </a>
+    <a href="tic-tac-toe.html" class="game-card">
+        <img src="icons/tic-tac-toe.png" alt="Piškvorky" />
+        <span>Piškvorky</span>
+    </a>
+    <a href="bludiste.html" class="game-card">
+        <img src="icons/bludiste.png" alt="Bludiště" />
+        <span>Bludiště</span>
+    </a>
+    <a href="had.html" class="game-card">
+        <img src="icons/had.png" alt="Had" />
+        <span>Had</span>
+    </a>
+    <a href="cisla.html" class="game-card">
+        <img src="icons/cisla.png" alt="Hádání čísel" />
+        <span>Hádání čísel</span>
+    </a>
+    <a href="puzzle.html" class="game-card">
+        <img src="icons/puzzle.png" alt="Puzzle" />
+        <span>Puzzle</span>
+    </a>
+    <a href="slovni-had.html" class="game-card">
+        <img src="icons/slovni-had.png" alt="Slovní had" />
+        <span>Slovní had</span>
+    </a>
+    <a href="kalkulacka.html" class="game-card">
+        <img src="icons/kalkulacka.png" alt="Počítání" />
+        <span>Počítání</span>
+    </a>
+    <a href="barvy.html" class="game-card">
+        <img src="icons/barvy.png" alt="Paměť na barvy" />
+        <span>Paměť na barvy</span>
+    </a>
+    <a href="slovnik.html" class="game-card">
+        <img src="icons/slovnik.png" alt="Slovní kvíz" />
+        <span>Slovní kvíz</span>
+    </a>
+    <a href="blikacka.html" class="game-card">
+        <img src="icons/blikacka.png" alt="Blikačka" />
+        <span>Blikačka</span>
+    </a>
+</div>
 
-<body>
-    <h1>Vyber si hru</h1>
-    <a class="game-link" href="pexeso.html">🧩 Pexeso</a>
-    <a class="game-link" href="sibenice.html">🔤 Šibenice</a>
-    <a class="game-link" href="kviz.html">❓ Kvíz</a>
-    <a class="game-link" href="piskvorky.html">⭕❌ Piškvorky</a>
-    <a class="game-link" href="hadej_cislo.html">🔢 Hádej číslo</a>
-    <a class="game-link" href="kamen_nuzky_papir.html">✊✋✌️ Kámen, nůžky, papír</a>
-    <a class="game-link" href="pocitani.html">➕➖ Počítání</a>
-    <a class="game-link" href="slovni_had.html">🐍 Slovní had</a>
-    <a class="game-link" href="puzzle.html">🧩 Puzzle</a>
-    <a class="game-link" href="bludiste.html">🌀 Bludiště</a>
-    <a class="game-link" href="reaction_game.html">⚡ Rychlá reakce</a>
-</body>
-
-</html>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #5a3e2b; /* Tmavší hnědá */
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+    .game-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+    .game-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: black;
+        border: 2px solid #ccc;
+        border-radius: 12px;
+        padding: 20px;
+        transition: transform 0.3s;
+        background-color: #f97316; /* Oranžová */
+    }
+    .game-card img {
+        width: 80px;
+        height: 80px;
+    }
+    .game-card:hover {
+        transform: scale(1.1);
+    }
+</style>
