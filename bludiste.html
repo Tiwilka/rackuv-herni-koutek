@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bludiště</title>
+    <style>
+        body {
+            background-color: #5A3825; /* Tmavší hnědá */
+            color: orange; /* Oranžová barva textu */
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3vw;
+            margin-bottom: 20px;
+        }
+
+        /* Bludiště */
+        .maze {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            margin: 20px auto;
+            max-width: 400px; /* Maximální šířka bludiště */
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+        }
+
+        .wall {
+            background-color: orange; /* Stěna */
+        }
+
+        .path {
+            background-color: #5A3825; /* Cesta */
+        }
+
+        .player {
+            background-color: white; /* Hráč */
+        }
+
+        .goal {
+            background-color: limegreen; /* Cíl */
+        }
+
+        /* Tlačítka */
+        input, button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: orange;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .buttons {
+            margin-top: 40px;
+        }
+
+        /* Zpráva o výhře */
+        .message {
+            margin-top: 20px;
+            font-size: 2vw;
+        }
+
+        /* Responzivní úpravy */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            .maze {
+                max-width: 300px; /* Menší bludiště na mobilu */
+            }
+
+            .cell {
+                width: 30px;
+                height: 30px;
+            }
+
+            input, button {
+                padding: 8px 16px;
+                font-size: 16px;
+            }
+
+            .message {
+                font-size: 4vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Bludiště</h1>
+
+        <!-- Bludiště -->
+        <div id="maze" class="maze"></div>
+
+        <!-- Zpráva o vítězství -->
+        <div id="message" class="message"></div>
+
+        <!-- Tlačítka -->
+        <div class="buttons">
+            <button onclick="resetGame()">Nová hra</button>
+            <button onclick="window.location.href='index.html'">Hlavní strana</button>
+        </div>
+    </div>
+
+    <script>
+        const maze = document.getElementById('maze');
+        const message = document.getElementById('message');
+
+        // Bludiště: 0 - cesta, 1 - stěna
+        const mazeLayout = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+            [1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+            [1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ];
+
+        // Počáteční pozice hráče
+        let playerPosition = { x: 1, y: 1 };
+        const goalPosition = { x: 8, y: 8 };
+
+        // Vytvoření bludiště
+        function drawMaze() {
+            maze.innerHTML = '';
+
+            mazeLayout.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    const div = document.createElement('div');
+                    div.className = 'cell';
+                    if (cell === 1) div.classList.add('wall');
+                    else div.classList.add('path');
+
+                    if (x === playerPosition.x && y === playerPosition.y) {
+                        div.classList.add('player');
+                    }
+                    if (x === goalPosition.x && y === goalPosition.y) {
+                        div.classList.add('goal');
+                    }
+                    maze.appendChild(div);
+                });
+            });
+        }
+
+        // Pohyb hráče
+        function movePlayer(dx, dy) {
+            const newX = playerPosition.x + dx;
+            const newY = playerPosition.y + dy;
+
+            if (
+                newX >= 0 &&
+                newX < mazeLayout[0].length &&
+                newY >= 0 &&
+                newY < mazeLayout.length &&
+                mazeLayout[newY][newX] === 0
+            ) {
+                playerPosition = { x: newX, y: newY };
+                drawMaze();
+                checkWin();
+            }
+        }
+
+        // Kontrola výhry
+        function checkWin() {
+            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y) {
+                message.textContent = '🎉 Gratulujeme, našel/a jsi cestu ven!';
+                window.removeEventListener('keydown', handleKeydown);
+            }
+        }
+
+        // Ovládání pomocí šipek
+        function handleKeydown(event) {
+            switch (event.key) {
+                case 'ArrowUp': movePlayer(0, -1); break;
+                case 'ArrowDown': movePlayer(0, 1); break;
+                case 'ArrowLeft': movePlayer(-1, 0); break;
+                case 'ArrowRight': movePlayer(1, 0); break;
+            }
+        }
+
+        // Reset hry
+        function resetGame() {
+            playerPosition = { x: 1, y: 1 };
+            message.textContent = '';
+            drawMaze();
+            window.addEventListener('keydown', handleKeydown);
+        }
+
+        // Spuštění hry
+        resetGame();
+    </script>
+
+</body>
+
+</html>
