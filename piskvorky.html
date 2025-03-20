@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piškvorky</title>
+    <style>
+        /* Reset a základní styl */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #5A3825; /* Hnědé pozadí */
+            color: orange; /* Oranžový text */
+            text-align: center;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Vycentrování obsahu */
+        }
+
+        /* Nadpis */
+        h1 {
+            font-size: 3vw;
+            margin-bottom: 20px;
+        }
+
+        /* Hrací plocha */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 400px; /* Maximální velikost desky */
+            margin: 20px 0;
+        }
+
+        .cell {
+            background-color: orange; /* Oranžové boxy */
+            color: white; /* Bílé symboly */
+            font-size: 5vw; /* Přizpůsobivá velikost */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px; /* Zaoblené rohy */
+            aspect-ratio: 1 / 1; /* Čtverec */
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .cell:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tlačítka */
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 2vw;
+            color: white;
+            background-color: orange;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responzivní úpravy */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            .cell {
+                font-size: 10vw; /* Větší písmo na mobilu */
+            }
+
+            .btn {
+                font-size: 4vw; /* Větší tlačítka na menších zařízeních */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Název hry -->
+    <h1>Piškvorky</h1>
+
+    <!-- Hrací deska -->
+    <div class="board" id="board"></div>
+
+    <!-- Tlačítka -->
+    <div class="btn-container">
+        <button class="btn" onclick="resetGame()">Nová hra</button>
+        <button class="btn" onclick="goHome()">Hlavní strana</button>
+    </div>
+
+    <script>
+        // Proměnné
+        const board = document.getElementById('board');
+        let currentPlayer = 'X';
+        let cells = Array(9).fill(null);
+
+        // Vytvoření hrací desky
+        function createBoard() {
+            board.innerHTML = ''; // Vyčištění desky
+            cells.forEach((_, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = index;
+                cell.addEventListener('click', handleMove, { once: true });
+                board.appendChild(cell);
+            });
+        }
+
+        // Zpracování tahu
+        function handleMove(event) {
+            const index = event.target.dataset.index;
+            cells[index] = currentPlayer;
+            event.target.textContent = currentPlayer;
+
+            if (checkWin()) {
+                setTimeout(() => alert(`${currentPlayer} vyhrává!`), 200);
+                return;
+            }
+
+            if (cells.every(cell => cell)) {
+                setTimeout(() => alert('Remíza!'), 200);
+                return;
+            }
+
+            // Přepínání hráče
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+
+        // Kontrola výhry
+        function checkWin() {
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Řádky
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Sloupce
+                [0, 4, 8], [2, 4, 6]             // Úhlopříčky
+            ];
+            return winningCombinations.some(combination =>
+                combination.every(index => cells[index] === currentPlayer)
+            );
+        }
+
+        // Restart hry
+        function resetGame() {
+            cells = Array(9).fill(null);
+            currentPlayer = 'X';
+            createBoard();
+        }
+
+        // Navigace na hlavní stranu
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        // Inicializace hry
+        createBoard();
+    </script>
+
+</body>
+
+</html>
