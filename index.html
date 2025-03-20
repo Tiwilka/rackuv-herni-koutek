@@ -1,68 +1,106 @@
-// index.html
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rackův herní koutek</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #5A3825; /* Tmavší hnědá */
+            color: orange; /* Oranžová barva textu */
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .game-box {
+            background-color: orange; /* Oranžová barva boxu */
+            padding: 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        .game-box:hover {
+            transform: scale(1.1);
+        }
+        img.logo {
+            max-width: 150px;
+            margin-top: 20px;
+        }
+        h1, h2 {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <img src="images/logo.png" alt="Logo Pekárna Racek" class="logo">
-        <h1 class="main-title">Pekárna Racek</h1>
-        <h2 class="sub-title">Rackův herní koutek</h2>
+    <!-- Logo a název -->
+    <img src="images/logo.jpg" alt="Logo Pekárna Racek" class="logo">
+    <h1>Pekárna Racek</h1>
+    <h2>Rackův herní koutek</h2>
 
-        <div class="grid-container">
-            <a href="pexeso.html" class="game-box">
-                <img src="images/ikona.png" alt="Pexeso">
-                <span>Pexeso</span>
-            </a>
-            <a href="sibenice.html" class="game-box">
-                <img src="images/ikona.png" alt="Šibenice">
-                <span>Šibenice</span>
-            </a>
-            <a href="piskvorky.html" class="game-box">
-                <img src="images/ikona.png" alt="Piškvorky">
-                <span>Piškvorky</span>
-            </a>
-            <a href="bludiste.html" class="game-box">
-                <img src="images/ikona.png" alt="Bludiště">
-                <span>Bludiště</span>
-            </a>
-            <a href="had.html" class="game-box">
-                <img src="images/ikona.png" alt="Had">
-                <span>Had</span>
-            </a>
-            <a href="klikacka.html" class="game-box">
-                <img src="images/ikona.png" alt="Klikací hra">
-                <span>Klikací hra</span>
-            </a>
-            <a href="ciselna-hra.html" class="game-box">
-                <img src="images/ikona.png" alt="Číselná hra">
-                <span>Číselná hra</span>
-            </a>
-            <a href="pameti-hra.html" class="game-box">
-                <img src="images/ikona.png" alt="Paměťová hra">
-                <span>Paměťová hra</span>
-            </a>
-            <a href="barvy.html" class="game-box">
-                <img src="images/ikona.png" alt="Hra s barvami">
-                <span>Hra s barvami</span>
-            </a>
-            <a href="kviz.html" class="game-box">
-                <img src="images/ikona.png" alt="Kvíz">
-                <span>Kvíz</span>
-            </a>
-            <a href="hadanky.html" class="game-box">
-                <img src="images/ikona.png" alt="Hádanky">
-                <span>Hádanky</span>
-            </a>
-            <a href="rychlost.html" class="game-box">
-                <img src="images/ikona.png" alt="Rychlostní hra">
-                <span>Rychlostní hra</span>
-            </a>
-        </div>
+    <!-- Herní boxy -->
+    <div class="container">
+        <a href="pexeso.html" class="game-box">
+            <img src="images/ikona.png" alt="Pexeso">
+            Pexeso
+        </a>
+        <a href="sibenice.html" class="game-box">
+            <img src="images/ikona.png" alt="Šibenice">
+            Šibenice
+        </a>
+        <a href="hadani-cisla.html" class="game-box">
+            <img src="images/ikona.png" alt="Hádaní čísel">
+            Hádaní čísel
+        </a>
+        <a href="tic-tac-toe.html" class="game-box">
+            <img src="images/ikona.png" alt="Piškvorky">
+            Piškvorky
+        </a>
+        <a href="bludiste.html" class="game-box">
+            <img src="images/ikona.png" alt="Bludiště">
+            Bludiště
+        </a>
+        <a href="barvy.html" class="game-box">
+            <img src="images/ikona.png" alt="Hra s barvami">
+            Hra s barvami
+        </a>
+        <a href="pameti.html" class="game-box">
+            <img src="images/ikona.png" alt="Test paměti">
+            Test paměti
+        </a>
+        <a href="kalkulacka.html" class="game-box">
+            <img src="images/ikona.png" alt="Počítání příkladů">
+            Počítání příkladů
+        </a>
+        <a href="skladacka.html" class="game-box">
+            <img src="images/ikona.png" alt="Skládačka">
+            Skládačka
+        </a>
+        <a href="slovni-hra.html" class="game-box">
+            <img src="images/ikona.png" alt="Slovní hra">
+            Slovní hra
+        </a>
+        <a href="postreh.html" class="game-box">
+            <img src="images/ikona.png" alt="Rychlý postřeh">
+            Rychlý postřeh
+        </a>
+        <a href="bludiste2.html" class="game-box">
+            <img src="images/ikona.png" alt="Bludiště 2">
+            Bludiště 2
+        </a>
     </div>
 </body>
 </html>
