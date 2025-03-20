@@ -1,127 +1,108 @@
 
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
     <meta charset="UTF-8">
     <title>Šibenice</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #5A3825; color: orange; }
-        h1 { margin-top: 20px; }
-        #word { letter-spacing: 10px; font-size: 24px; }
-        #message { margin: 20px; font-size: 20px; }
-        #hangman { margin: 20px; }
-        #wrong-letters { margin-top: 20px; }
-        .button-container { margin-top: 30px; }
-        button { padding: 10px 20px; margin: 5px; background-color: orange; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        canvas { border: 1px solid white; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .word-container {
+            margin: 20px;
+            font-size: 24px;
+        }
+        .used-letters {
+            margin-top: 20px;
+        }
+        .stickman {
+            stroke: black;
+            stroke-width: 3;
+        }
     </style>
 </head>
+
 <body>
     <h1>Šibenice</h1>
-    <div id="hangman-container">
-        <canvas id="hangman" width="200" height="250"></canvas>
-    </div>
-    <p id="word"></p>
-    <p id="wrong-letters">Špatná písmena: <span id="wrong"></span></p>
+
+    <svg width="200" height="300" id="hangman">
+        <!-- Šibenice -->
+        <line x1="10" y1="290" x2="150" y2="290" class="stickman" />
+        <line x1="80" y1="290" x2="80" y2="50" class="stickman" />
+        <line x1="80" y1="50" x2="140" y2="50" class="stickman" />
+        <line x1="140" y1="50" x2="140" y2="80" class="stickman" />
+
+        <!-- Části těla panáčka (skryté) -->
+        <circle cx="140" cy="100" r="20" class="stickman hidden" id="head" />
+        <line x1="140" y1="120" x2="140" y2="180" class="stickman hidden" id="body" />
+        <line x1="140" y1="130" x2="110" y2="160" class="stickman hidden" id="left-arm" />
+        <line x1="140" y1="130" x2="170" y2="160" class="stickman hidden" id="right-arm" />
+        <line x1="140" y1="180" x2="110" y2="230" class="stickman hidden" id="left-leg" />
+        <line x1="140" y1="180" x2="170" y2="230" class="stickman hidden" id="right-leg" />
+    </svg>
+
+    <div class="word-container" id="word-container"></div>
     <input type="text" id="guess" maxlength="1" placeholder="Hádej písmeno">
-    <button onclick="checkLetter()">Hádej</button>
+    <button onclick="checkLetter()">Hádat</button>
+    <button onclick="newGame()">Nová hra</button>
+
+    <div class="used-letters" id="used-letters">Použitá písmena: </div>
     <p id="message"></p>
-    <div class="button-container">
-        <button onclick="newGame()">Nová hra</button>
-        <a href="index.html"><button>Zpět na hlavní stránku</button></a>
-    </div>
 
     <script>
-        const words = {
-            "Ovoce": ["jablko", "hruška", "meloun", "třešeň"],
-            "Zvířata": ["pes", "kočka", "lev", "slon"],
-            "Doprava": ["auto", "vlak", "letadlo", "kolo"]
-        };
+        const words = ["JABLKO", "HRUŠKA", "AUTOMOBIL", "POČÍTAČ", "ZMRZLINA"];
+        let currentWord, guessedWord, wrongGuesses, usedLetters;
+        const bodyParts = ["head", "body", "left-arm", "right-arm", "left-leg", "right-leg"];
 
-        let chosenCategory;
-        let chosenWord;
-        let guessedLetters = [];
-        let wrongLetters = [];
-        let attemptsLeft = 6;
-
-        function selectWord() {
-            const categories = Object.keys(words);
-            chosenCategory = categories[Math.floor(Math.random() * categories.length)];
-            const categoryWords = words[chosenCategory];
-            chosenWord = categoryWords[Math.floor(Math.random() * categoryWords.length)];
-            document.getElementById("word").textContent = "_ ".repeat(chosenWord.length);
-        }
-
-        function drawHangman() {
-            const canvas = document.getElementById("hangman");
-            const ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Kreslení šibenice
-            if (attemptsLeft <= 5) ctx.fillRect(20, 230, 100, 10); // základna
-            if (attemptsLeft <= 4) ctx.fillRect(50, 20, 10, 210); // sloup
-            if (attemptsLeft <= 3) ctx.fillRect(50, 20, 100, 10); // trám
-            if (attemptsLeft <= 2) ctx.fillRect(150, 20, 10, 40); // provaz
-            if (attemptsLeft <= 1) {
-                ctx.beginPath();
-                ctx.arc(155, 75, 25, 0, Math.PI * 2); // hlava
-                ctx.stroke();
-            }
-            if (attemptsLeft === 0) {
-                ctx.fillRect(150, 100, 10, 70); // tělo
-                ctx.fillRect(130, 120, 40, 10); // ruce
-                ctx.fillRect(140, 170, 20, 10); // nohy
-            }
+        function newGame() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            guessedWord = Array(currentWord.length).fill("_");
+            wrongGuesses = 0;
+            usedLetters = [];
+            document.getElementById("word-container").textContent = guessedWord.join(" ");
+            document.getElementById("message").textContent = "";
+            document.getElementById("guess").value = "";
+            document.getElementById("used-letters").textContent = "Použitá písmena: ";
+            bodyParts.forEach(part => document.getElementById(part).classList.add("hidden"));
         }
 
         function checkLetter() {
             const input = document.getElementById("guess");
-            const letter = input.value.toLowerCase();
-
-            if (!letter || guessedLetters.includes(letter) || wrongLetters.includes(letter)) return;
+            const letter = input.value.toUpperCase();
             input.value = "";
 
-            if (chosenWord.includes(letter)) {
-                guessedLetters.push(letter);
+            if (!letter || usedLetters.includes(letter)) return;
+
+            usedLetters.push(letter);
+            document.getElementById("used-letters").textContent = "Použitá písmena: " + usedLetters.join(", ");
+
+            if (currentWord.includes(letter)) {
+                currentWord.split("").forEach((char, i) => {
+                    if (char === letter) guessedWord[i] = letter;
+                });
+                document.getElementById("word-container").textContent = guessedWord.join(" ");
+                if (!guessedWord.includes("_")) {
+                    document.getElementById("message").textContent = "🎉 Gratulujeme, vyhrál/a jsi!";
+                }
             } else {
-                wrongLetters.push(letter);
-                attemptsLeft--;
-                drawHangman();
-            }
-
-            updateDisplay();
-            checkGameOver();
-        }
-
-        function updateDisplay() {
-            const displayWord = chosenWord.split("").map(letter => guessedLetters.includes(letter) ? letter : "_").join(" ");
-            document.getElementById("word").textContent = displayWord;
-            document.getElementById("wrong").textContent = wrongLetters.join(", ");
-        }
-
-        function checkGameOver() {
-            if (attemptsLeft === 0) {
-                document.getElementById("message").textContent = `Prohrál/a jsi! Slovo bylo: ${chosenWord}`;
-                document.getElementById("guess").disabled = true;
-            } else if (!document.getElementById("word").textContent.includes("_")) {
-                const uniqueCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-                document.getElementById("message").textContent = `🎉 Vyhrál/a jsi! Tvůj kód: ${uniqueCode}`;
-                document.getElementById("guess").disabled = true;
+                if (wrongGuesses < bodyParts.length) {
+                    document.getElementById(bodyParts[wrongGuesses]).classList.remove("hidden");
+                    wrongGuesses++;
+                }
+                if (wrongGuesses === bodyParts.length) {
+                    document.getElementById("message").textContent = `❌ Prohrál/a jsi! Slovo bylo: ${currentWord}`;
+                }
             }
         }
 
-        function newGame() {
-            guessedLetters = [];
-            wrongLetters = [];
-            attemptsLeft = 6;
-            document.getElementById("guess").disabled = false;
-            document.getElementById("message").textContent = "";
-            selectWord();
-            drawHangman();
-        }
-
-        selectWord();
-        drawHangman();
+        newGame();
     </script>
+
 </body>
 </html>
