@@ -41,9 +41,9 @@
             border-radius: 5px;
         }
 
-        /* Použití obrázku pro stěny */
+        /* Obrázek pro stěny */
         .wall {
-            background: url('images/bludiste-zed.png') center/cover; /* Obrázek na stěnu */
+            background: url('images/bludiste-zed.png') center/cover;
         }
 
         .path {
@@ -85,7 +85,7 @@
 
         /* Ovládací tlačítka na mobilu */
         .controls {
-            display: none; /* Skryté, dokud se nezjistí mobilní zařízení */
+            display: none; /* Skryté na PC, viditelné na mobilu */
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
@@ -181,15 +181,15 @@
         let playerPosition = { x: 1, y: 1 };
         let goalPosition = { x: size - 2, y: size - 2 };
 
-        // Zjištění, zda je zařízení mobilní
+        // Ovládání na PC i mobilu
         const isMobile = /Mobi|Android/i.test(navigator.userAgent);
         if (isMobile) {
-            controls.style.display = 'flex'; // Zobrazit ovládání na mobilu
+            controls.style.display = 'flex';
         } else {
             window.addEventListener('keydown', handleKeyPress);
         }
 
-        // Generování náhodného bludiště (matoucí a spletité cesty)
+        // Generování matoucího bludiště
         function generateMaze() {
             mazeLayout = Array(size).fill().map(() => Array(size).fill(1));
 
@@ -197,7 +197,7 @@
                 mazeLayout[y][x] = 0;
                 const directions = [
                     [0, -2], [0, 2], [-2, 0], [2, 0]
-                ].sort(() => Math.random() - 0.8); // Více náhodnosti
+                ].sort(() => Math.random() - 0.7);
 
                 directions.forEach(([dx, dy]) => {
                     const nx = x + dx, ny = y + dy;
@@ -211,6 +211,7 @@
             carve(1, 1);
         }
 
+        // Vykreslení bludiště
         function drawMaze() {
             maze.innerHTML = '';
             maze.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
@@ -240,7 +241,9 @@
             if (mazeLayout[newY] && mazeLayout[newY][newX] === 0) {
                 playerPosition = { x: newX, y: newY };
                 drawMaze();
-                checkWin();
+                if (newX === goalPosition.x && newY === goalPosition.y) {
+                    message.textContent = '🎉 Gratulujeme, našel/a jsi cestu ven!';
+                }
             }
         }
 
