@@ -3,75 +3,145 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Pexeso</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pexeso – Rackův herní koutek</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #5A3825;
+            background-color: #5A3825; /* Tmavší hnědá */
             color: orange;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Zajišťuje zobrazení na celé obrazovce */
+            overflow: hidden; /* Skryje posuvníky */
+        }
+
+        h1 {
+            font-size: 4vw;
+            margin: 20px 0;
+            background: linear-gradient(90deg, orange, white);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 100px);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             justify-content: center;
+            max-width: 90vw; /* Přizpůsobení šířky */
+            max-height: 80vh; /* Přizpůsobení výšky */
         }
 
         .card {
-            width: 100px;
-            height: 100px;
-            background: lightblue;
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Čtverec */
+            perspective: 1000px; /* Pro 3D efekt */
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s; /* Zpomalení otáčení */
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg); /* Otočení karty */
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            cursor: pointer;
-            transform: rotateY(0deg);
-            transition: transform 0.5s;
         }
 
-        .hidden {
-            background: gray;
+        .card-front {
+            background-color: orange; /* Zadní strana */
+            color: white;
+            font-size: 3vw;
+        }
+
+        .card-back {
             transform: rotateY(180deg);
+            background-color: white; /* Přední strana */
         }
 
-        #message {
-            margin: 20px;
-            font-size: 20px;
-        }
-
-        .btn-container {
-            margin-top: 20px;
-        }
-
+        /* Tlačítka */
         button {
             padding: 10px 20px;
-            font-size: 16px;
-            margin: 5px;
+            margin: 20px;
+            font-size: 1.5vw;
+            border: none;
+            border-radius: 10px;
+            background-color: orange;
+            color: white;
             cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responzivní úpravy */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+
+            .card-front {
+                font-size: 5vw;
+            }
+
+            button {
+                font-size: 4vw;
+            }
         }
     </style>
 </head>
 
 <body>
-    <h1>Pexeso</h1>
-    <div class="grid" id="grid"></div>
-    <p id="message">Pokusy: <span id="attempts">0</span></p>
 
-    <div class="btn-container">
-        <button onclick="restartGame()">Nová hra</button>
-        <button onclick="window.location.href='index.html'">Zpět na hlavní stránku</button>
-    </div>
+    <h1>Pexeso – Rackův herní koutek</h1>
+
+    <div id="grid" class="grid"></div>
+
+    <button onclick="resetGame()">Nová hra</button>
+    <button onclick="window.location.href='index.html'">Hlavní strana</button>
 
     <script>
-        const emojis = ["🍎", "🍌", "🍉", "🍇", "🍒", "🍋", "🍓", "🍍"];
-        let cards = [...emojis, ...emojis];
+        // Obrázky pro pexeso (každý 2x)
+        const images = [
+            "babovka", "bonbon", "cokolada", "croissant",
+            "donut", "dort", "chleba", "chlebicek",
+            "jahoda", "kava", "lizatko", "mouka",
+            "muffin", "pernicek", "preclik", "tresne"
+        ];
+
+        let cards = [...images, ...images]; // Každý obrázek dvakrát
         let flippedCards = [];
         let matchedPairs = 0;
-        let attempts = 0;
 
+        // Zamíchání políčka (Fisher-Yates shuffle)
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -79,66 +149,67 @@
             }
         }
 
+        // Vytvoření hracího pole
         function createBoard() {
-            const grid = document.getElementById("grid");
-            grid.innerHTML = "";
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
             shuffle(cards);
-            cards.forEach((emoji, index) => {
-                const card = document.createElement("div");
-                card.className = "card hidden";
+            cards.forEach((image, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
                 card.dataset.index = index;
-                card.addEventListener("click", flipCard);
+                card.addEventListener('click', flipCard);
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back">
+                            <img src="images/${image}.png" alt="${image}" style="max-width: 80%; height: auto;">
+                        </div>
+                    </div>
+                `;
                 grid.appendChild(card);
             });
-            attempts = 0;
-            updateAttempts();
         }
 
+        // Otočení karty
         function flipCard() {
-            if (flippedCards.length < 2 && this.classList.contains("hidden")) {
-                const index = this.dataset.index;
-                this.textContent = cards[index];
-                this.classList.remove("hidden");
+            if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+                this.classList.add('flipped');
                 flippedCards.push(this);
+
                 if (flippedCards.length === 2) {
-                    attempts++;
-                    updateAttempts();
-                    setTimeout(checkMatch, 500);
+                    setTimeout(checkMatch, 1000);
                 }
             }
         }
 
+        // Kontrola shody
         function checkMatch() {
             const [card1, card2] = flippedCards;
-            if (card1.textContent === card2.textContent) {
+            const index1 = card1.dataset.index;
+            const index2 = card2.dataset.index;
+
+            if (cards[index1] === cards[index2]) {
                 matchedPairs++;
-                if (matchedPairs === emojis.length) {
-                    const uniqueCode = generateCode();
-                    document.getElementById("message").innerHTML = `🎉 Gratulujeme, vyhrál/a jsi!<br>Váš unikátní kód: <strong>${uniqueCode}</strong>`;
+                if (matchedPairs === images.length) {
+                    alert("🎉 Gratulujeme, našel/a jsi všechny dvojice!");
                 }
             } else {
-                card1.textContent = "";
-                card2.textContent = "";
-                card1.classList.add("hidden");
-                card2.classList.add("hidden");
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
             }
+
             flippedCards = [];
         }
 
-        function updateAttempts() {
-            document.getElementById("attempts").textContent = attempts;
-        }
-
-        function restartGame() {
+        // Restart hry
+        function resetGame() {
             flippedCards = [];
             matchedPairs = 0;
             createBoard();
         }
 
-        function generateCode() {
-            return Math.random().toString(36).substring(2, 10).toUpperCase();
-        }
-
+        // Spuštění hry
         createBoard();
     </script>
 
