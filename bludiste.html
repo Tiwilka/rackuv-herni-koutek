@@ -33,25 +33,27 @@
         }
 
         .cell {
-            width: 24px;
-            height: 24px;
+            width: 30px; /* Větší buňky */
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 5px;
         }
 
+        /* Použití obrázku pro stěny */
         .wall {
-            background-color: orange; /* Stěna */
+            background: url('images/bludiste-zed.png') center/cover; /* Obrázek na stěnu */
         }
 
         .path {
             background-color: #5A3825; /* Cesta */
         }
 
+        /* Větší obrázky hráče a cíle */
         .player img, .goal img {
-            width: 100%;
-            height: 100%;
+            width: 150%; /* Zvětšení na 150 % velikosti buňky */
+            height: 150%;
         }
 
         /* Tlačítka */
@@ -83,7 +85,7 @@
 
         /* Ovládací tlačítka na mobilu */
         .controls {
-            display: flex;
+            display: none; /* Skryté, dokud se nezjistí mobilní zařízení */
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
@@ -115,8 +117,13 @@
             }
 
             .cell {
-                width: 14px;
-                height: 14px;
+                width: 20px; /* Menší buňky na mobilu */
+                height: 20px;
+            }
+
+            .player img, .goal img {
+                width: 180%; /* Ještě větší obrázky na mobilu */
+                height: 180%;
             }
 
             .control-btn {
@@ -149,7 +156,7 @@
         </div>
 
         <!-- Ovládací tlačítka pro mobilní zařízení -->
-        <div class="controls">
+        <div class="controls" id="controls">
             <div class="control-row">
                 <button class="control-btn" onclick="movePlayer(0, -1)">⬆️</button>
             </div>
@@ -167,11 +174,20 @@
     <script>
         const maze = document.getElementById('maze');
         const message = document.getElementById('message');
+        const controls = document.getElementById('controls');
         const size = 25; // Rozměr bludiště
 
         let mazeLayout = [];
         let playerPosition = { x: 1, y: 1 };
         let goalPosition = { x: size - 2, y: size - 2 };
+
+        // Zjištění, zda je zařízení mobilní
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            controls.style.display = 'flex'; // Zobrazit ovládání na mobilu
+        } else {
+            window.addEventListener('keydown', handleKeyPress);
+        }
 
         // Generování náhodného bludiště
         function generateMaze() {
@@ -221,7 +237,6 @@
             });
         }
 
-        // Pohyb hráče
         function movePlayer(dx, dy) {
             const newX = playerPosition.x + dx;
             const newY = playerPosition.y + dy;
