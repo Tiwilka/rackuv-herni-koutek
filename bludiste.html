@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bludiště</title>
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background-color: #5A3825; /* Tmavší hnědá */
@@ -137,24 +137,18 @@
         }
     </style>
 </head>
-
 <body>
-
     <div class="container">
         <h1>Bludiště</h1>
-
         <!-- Bludiště -->
         <div id="maze" class="maze"></div>
-
         <!-- Zpráva o vítězství -->
         <div id="message" class="message"></div>
-
         <!-- Tlačítka -->
         <div class="buttons">
             <button onclick="resetGame()">Nová hra</button>
             <button onclick="window.location.href='index.html'">Hlavní strana</button>
         </div>
-
         <!-- Ovládací tlačítka pro mobilní zařízení -->
         <div class="controls" id="controls">
             <div class="control-row">
@@ -168,9 +162,7 @@
                 <button class="control-btn" onclick="movePlayer(0, 1)">⬇️</button>
             </div>
         </div>
-
     </div>
-
     <script>
         const maze = document.getElementById('maze');
         const message = document.getElementById('message');
@@ -256,7 +248,5 @@
 
         resetGame();
     </script>
-
 </body>
-
 </html>
