@@ -27,15 +27,14 @@
         /* Bludiště */
         .maze {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
             gap: 2px;
             margin: 20px auto;
-            max-width: 400px; /* Maximální šířka bludiště */
+            max-width: 600px; /* Maximální šířka bludiště */
         }
 
         .cell {
-            width: 40px;
-            height: 40px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -59,16 +58,13 @@
         }
 
         /* Tlačítka */
-        input, button {
+        button {
             padding: 10px 20px;
             margin: 10px;
             font-size: 18px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-        }
-
-        button {
             background-color: orange;
             color: white;
             transition: transform 0.3s;
@@ -118,17 +114,17 @@
             }
 
             .maze {
-                max-width: 300px; /* Menší bludiště na mobilu */
+                max-width: 400px; /* Menší bludiště na mobilu */
             }
 
             .cell {
-                width: 30px;
-                height: 30px;
+                width: 12px;
+                height: 12px;
             }
 
-            input, button {
-                padding: 8px 16px;
-                font-size: 16px;
+            .control-btn {
+                padding: 15px;
+                font-size: 20px;
             }
 
             .message {
@@ -174,42 +170,49 @@
     <script>
         const maze = document.getElementById('maze');
         const message = document.getElementById('message');
+        const size = 30; // Rozměr bludiště
 
-        // Bludiště: 0 - cesta, 1 - stěna
-        const mazeLayout = [
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
-            [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-            [1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-            [1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-            [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-            [1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ];
-
-        // Počáteční pozice hráče
+        let mazeLayout = [];
         let playerPosition = { x: 1, y: 1 };
-        const goalPosition = { x: 8, y: 8 };
+        let goalPosition = { x: size - 2, y: size - 2 };
 
-        // Vytvoření bludiště
+        // Generování náhodného bludiště pomocí algoritmu "Průchod stěnou"
+        function generateMaze() {
+            mazeLayout = Array(size).fill().map(() => Array(size).fill(1));
+
+            function carve(x, y) {
+                const directions = [
+                    [0, -2], [0, 2], [-2, 0], [2, 0]
+                ].sort(() => Math.random() - 0.5);
+
+                mazeLayout[y][x] = 0;
+
+                directions.forEach(([dx, dy]) => {
+                    const nx = x + dx, ny = y + dy;
+                    if (ny > 0 && ny < size - 1 && nx > 0 && nx < size - 1 && mazeLayout[ny][nx] === 1) {
+                        mazeLayout[y + dy / 2][x + dx / 2] = 0;
+                        carve(nx, ny);
+                    }
+                });
+            }
+
+            carve(1, 1);
+        }
+
+        // Vykreslení bludiště
         function drawMaze() {
             maze.innerHTML = '';
+            maze.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
             mazeLayout.forEach((row, y) => {
                 row.forEach((cell, x) => {
                     const div = document.createElement('div');
                     div.className = 'cell';
-                    if (cell === 1) div.classList.add('wall');
-                    else div.classList.add('path');
+                    div.classList.add(cell === 1 ? 'wall' : 'path');
 
-                    if (x === playerPosition.x && y === playerPosition.y) {
-                        div.classList.add('player');
-                    }
-                    if (x === goalPosition.x && y === goalPosition.y) {
-                        div.classList.add('goal');
-                    }
+                    if (x === playerPosition.x && y === playerPosition.y) div.classList.add('player');
+                    if (x === goalPosition.x && y === goalPosition.y) div.classList.add('goal');
+
                     maze.appendChild(div);
                 });
             });
@@ -220,13 +223,7 @@
             const newX = playerPosition.x + dx;
             const newY = playerPosition.y + dy;
 
-            if (
-                newX >= 0 &&
-                newX < mazeLayout[0].length &&
-                newY >= 0 &&
-                newY < mazeLayout.length &&
-                mazeLayout[newY][newX] === 0
-            ) {
+            if (mazeLayout[newY] && mazeLayout[newY][newX] === 0) {
                 playerPosition = { x: newX, y: newY };
                 drawMaze();
                 checkWin();
@@ -240,10 +237,12 @@
             }
         }
 
-        // Reset hry
+        // Restart hry
         function resetGame() {
             playerPosition = { x: 1, y: 1 };
+            goalPosition = { x: size - 2, y: size - 2 };
             message.textContent = '';
+            generateMaze();
             drawMaze();
         }
 
