@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bludiště – Rackův herní koutek</title>
     <style>
+        /* Základní styl */
         body {
-            background-color: #5A3825; /* Tmavší hnědá */
-            color: orange; /* Oranžová barva textu */
+            background-color: #5A3825;
+            color: orange;
             text-align: center;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -17,9 +18,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh; /* Celá obrazovka */
+            height: 100vh; /* 100 % výšky obrazovky */
             box-sizing: border-box;
-            overflow: hidden; /* Skrytí posuvníku */
+            overflow: hidden; /* Skrytí posouvání */
         }
 
         .container {
@@ -30,19 +31,18 @@
         }
 
         h1 {
-            font-size: 4vw; /* Obyčejný nadpis */
+            font-size: 4vw;
             margin: 10px 0;
             color: orange;
         }
 
-        /* Responzivní bludiště */
+        /* Dynamická velikost bludiště */
         .maze {
             display: grid;
             gap: 2px;
             margin: 10px 0;
-            /* Dynamická velikost podle obrazovky */
-            width: min(90vw, 90vh);
-            height: min(90vw, 90vh);
+            width: min(80vmin, 600px); /* Bludiště je maximálně 600px, jinak 80 % menší strany */
+            height: min(80vmin, 600px);
         }
 
         .cell {
@@ -73,7 +73,7 @@
         button {
             padding: 8px 16px;
             margin: 5px;
-            font-size: 1.5vw;
+            font-size: 2vw;
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -113,23 +113,24 @@
             cursor: pointer;
         }
 
+        /* Zprávy */
         .message {
             margin-top: 10px;
             font-size: 2vw;
         }
 
-        /* Responzivní úpravy pro menší obrazovky */
+        /* Responzivní úpravy */
         @media (max-width: 768px) {
             h1 {
-                font-size: 6vw; /* Větší nadpis na mobilu */
-            }
-
-            button {
-                font-size: 4vw;
+                font-size: 6vw;
             }
 
             .control-btn {
                 padding: 8px;
+                font-size: 4vw;
+            }
+
+            button {
                 font-size: 4vw;
             }
 
@@ -262,11 +263,6 @@
             drawMaze();
             message.textContent = '';
         }
-
-        window.addEventListener('keydown', (e) => {
-            const moves = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
-            if (moves[e.key]) movePlayer(...moves[e.key]);
-        });
 
         resetGame();
     </script>
