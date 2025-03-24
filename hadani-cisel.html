@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hádání čísel – Rackův herní koutek</title>
+    <style>
+        body {
+            background-color: #5A3825; /* Tmavší hnědá */
+            color: orange; /* Oranžová barva textu */
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Celá obrazovka */
+            box-sizing: border-box;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 4vw;
+            margin: 20px 0;
+            color: orange;
+        }
+
+        .message, .score, .hint {
+            font-size: 2vw;
+            margin: 10px 0;
+        }
+
+        input, button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1.5vw;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: orange;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            input, button {
+                font-size: 4vw;
+            }
+
+            .message, .score, .hint {
+                font-size: 4vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Hádání čísel</h1>
+
+        <!-- Výběr obtížnosti -->
+        <p>Zvol obtížnost:</p>
+        <button onclick="startGame(50)">1 – 50 (Lehké)</button>
+        <button onclick="startGame(100)">1 – 100 (Střední)</button>
+        <button onclick="startGame(500)">1 – 500 (Těžké)</button>
+
+        <!-- Herní sekce -->
+        <div id="game-area" style="display: none;">
+            <p class="message">Hádej číslo:</p>
+            <input type="number" id="guess" placeholder="Tvůj tip">
+            <button onclick="checkGuess()">Hádat</button>
+
+            <!-- Počítadlo pokusů -->
+            <p id="score" class="score">Pokusy: 0</p>
+
+            <!-- Nápověda -->
+            <p id="hint" class="hint"></p>
+
+            <!-- Tlačítka -->
+            <div class="buttons">
+                <button onclick="resetGame()">Nová hra</button>
+                <button onclick="window.location.href='index.html'">Hlavní strana</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let targetNumber;
+        let attempts = 0;
+        let maxAttempts = 15;
+
+        // Zahájení hry
+        function startGame(max) {
+            targetNumber = Math.floor(Math.random() * max) + 1;
+            attempts = 0;
+            document.getElementById("game-area").style.display = "block";
+            updateScore();
+            document.getElementById("hint").textContent = "";
+        }
+
+        // Kontrola hádaného čísla
+        function checkGuess() {
+            const guess = parseInt(document.getElementById("guess").value);
+            if (isNaN(guess)) return alert("Zadej platné číslo!");
+
+            attempts++;
+            updateScore();
+
+            if (guess === targetNumber) {
+                showMessage(`🎉 Uhádl/a jsi! Číslo bylo ${targetNumber}. Tvůj kód: ${generateCode()}`);
+                return;
+            }
+
+            if (attempts >= maxAttempts) {
+                showMessage(`❌ Prohrál/a jsi! Číslo bylo ${targetNumber}.`);
+                return;
+            }
+
+            // Nápověda
+            if (guess < targetNumber) {
+                showMessage("➡️ Hledej větší číslo.");
+            } else {
+                showMessage("⬅️ Hledej menší číslo.");
+            }
+
+            provideHint();
+        }
+
+        // Aktualizace skóre
+        function updateScore() {
+            document.getElementById("score").textContent = `Pokusy: ${attempts}`;
+        }
+
+        // Zobrazení zprávy
+        function showMessage(msg) {
+            document.querySelector(".message").textContent = msg;
+        }
+
+        // Poskytnutí nápovědy
+        function provideHint() {
+            const hint = document.getElementById("hint");
+            if (attempts === 5) {
+                hint.textContent = `Nápověda: Číslo je ${targetNumber % 2 === 0 ? "sudé" : "liché"}.`;
+            } else if (attempts === 10) {
+                hint.textContent = `Nápověda: Číslo ${targetNumber % 5 === 0 ? "je" : "není"} dělitelné 5.`;
+            } else if (attempts === 12 && Math.abs(targetNumber - parseInt(document.getElementById("guess").value)) <= 10) {
+                hint.textContent = "Nápověda: Jsi velmi blízko!";
+            }
+        }
+
+        // Generování unikátního kódu
+        function generateCode() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        // Restart hry
+        function resetGame() {
+            window.location.reload();
+        }
+    </script>
+
+</body>
+
+</html>
