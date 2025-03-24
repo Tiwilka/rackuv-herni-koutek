@@ -19,28 +19,29 @@
             justify-content: center;
             min-height: 100vh; /* Celá obrazovka */
             box-sizing: border-box;
+            overflow: hidden; /* Skrytí posuvníku */
         }
 
         .container {
-            padding: 20px;
+            padding: 10px;
         }
 
         h1 {
             font-size: 4vw; /* Obyčejný nadpis */
-            margin: 20px 0;
+            margin: 10px 0;
             color: orange;
         }
 
         .maze {
             display: grid;
             gap: 2px;
-            margin: 20px auto;
-            max-width: 600px; /* Maximální šířka bludiště */
+            margin: 10px auto;
+            max-width: 80vw; /* Šířka bludiště */
         }
 
         .cell {
-            width: 24px;
-            height: 24px;
+            width: 3vw; /* Velikost se přizpůsobí šířce obrazovky */
+            height: 3vw;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -64,8 +65,8 @@
         }
 
         button {
-            padding: 10px 20px;
-            margin: 10px;
+            padding: 8px 16px;
+            margin: 5px;
             font-size: 1.5vw;
             border: none;
             border-radius: 10px;
@@ -80,53 +81,53 @@
         }
 
         .buttons {
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .controls {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .control-row {
             display: flex;
-            gap: 10px;
+            gap: 5px;
         }
 
         .control-btn {
-            padding: 20px;
+            padding: 10px;
             background-color: orange;
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
         }
 
         .message {
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 2vw;
         }
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 6vw;
+                font-size: 6vw; /* Větší nadpis na mobilu */
             }
 
             .maze {
-                max-width: 400px; /* Menší bludiště na mobilu */
+                max-width: 90vw; /* Přizpůsobení bludiště na menší obrazovky */
             }
 
             .cell {
-                width: 14px;
-                height: 14px;
+                width: 4vw;
+                height: 4vw;
             }
 
             .control-btn {
-                padding: 15px;
-                font-size: 20px;
+                padding: 8px;
+                font-size: 16px;
             }
 
             .message {
@@ -186,6 +187,7 @@
         let playerPosition = { x: 1, y: 1 };
         let goalPosition = { x: size - 2, y: size - 2 };
         let steps = 0;
+        let gameWon = false; // Kontrola, zda hra již byla vyhrána
 
         // Generování náhodného bludiště
         function generateMaze() {
@@ -231,6 +233,8 @@
 
         // Pohyb hráče
         function movePlayer(dx, dy) {
+            if (gameWon) return; // Zamezení pohybu po výhře
+
             const newX = playerPosition.x + dx;
             const newY = playerPosition.y + dy;
 
@@ -245,7 +249,8 @@
 
         // Kontrola výhry
         function checkWin() {
-            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y) {
+            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y && !gameWon) {
+                gameWon = true;
                 message.textContent = `🎉 Gratulujeme, našel/a jsi cestu ven! Tvůj kód: ${generateCode()}`;
             }
         }
@@ -259,13 +264,13 @@
         function resetGame() {
             playerPosition = { x: 1, y: 1 };
             steps = 0;
+            gameWon = false;
             stepsDisplay.textContent = "Kroky: 0";
             generateMaze();
             drawMaze();
             message.textContent = '';
         }
 
-        // Ovládání šipkami na PC
         window.addEventListener('keydown', (e) => {
             const moves = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
             if (moves[e.key]) movePlayer(...moves[e.key]);
