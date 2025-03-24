@@ -14,6 +14,12 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Celá obrazovka */
+            box-sizing: border-box;
         }
 
         .container {
@@ -23,17 +29,16 @@
         h1 {
             font-size: 4vw;
             margin: 20px 0;
-            background: linear-gradient(90deg, orange, white);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: orange; /* Obyčejný oranžový text */
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            max-width: 80vw; /* Přizpůsobení šířky */
-            max-height: 70vh; /* Přizpůsobení výšky */
+            gap: 10px;
+            width: 100%;
+            max-width: 70vw; /* Menší šířka mřížky */
+            max-height: 60vh; /* Upravena výška pro viditelnost tlačítek */
             margin: 20px auto;
         }
 
@@ -85,17 +90,14 @@
             margin: 20px 0;
         }
 
-        /* Tlačítka a vstupy */
-        input, button {
+        /* Tlačítka */
+        button {
             padding: 10px 20px;
             margin: 10px;
-            font-size: 18px;
+            font-size: 1.5vw;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-        }
-
-        button {
             background-color: orange;
             color: white;
             transition: transform 0.3s;
@@ -106,7 +108,7 @@
         }
 
         .buttons {
-            margin-top: 40px;
+            margin-top: 20px;
         }
 
         /* Responzivní úpravy */
@@ -117,15 +119,15 @@
 
             .grid {
                 gap: 5px;
+                max-height: 50vh; /* Upravená výška na mobilu */
             }
 
             .card-front {
                 font-size: 5vw;
             }
 
-            input, button {
-                padding: 8px 16px;
-                font-size: 16px;
+            button {
+                font-size: 4vw;
             }
 
             .score {
@@ -138,7 +140,7 @@
 <body>
 
     <div class="container">
-        <h1>Pexeso – Rackův herní koutek</h1>
+        <h1>Pexeso</h1>
 
         <!-- Počítadlo pokusů -->
         <div id="score" class="score">Pokusy: 0</div>
