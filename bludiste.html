@@ -55,10 +55,12 @@
             background-color: #5A3825; /* Cesta */
         }
 
-        /* Menší obrázky – 80 % velikosti buňky */
-        .player img, .goal img {
-            width: 80%;
-            height: 80%;
+        .player {
+            background-color: white; /* Panáček – bílá */
+        }
+
+        .goal {
+            background-color: limegreen; /* Cíl – zelená */
         }
 
         button {
@@ -215,11 +217,11 @@
                     div.className = 'cell ' + (cell === 1 ? 'wall' : 'path');
 
                     if (x === playerPosition.x && y === playerPosition.y) {
-                        div.innerHTML = `<img src="images/hrac.png" alt="Hráč" class="player">`;
+                        div.classList.add('player');
                     }
 
                     if (x === goalPosition.x && y === goalPosition.y) {
-                        div.innerHTML = `<img src="images/cil.png" alt="Cíl" class="goal">`;
+                        div.classList.add('goal');
                     }
 
                     maze.appendChild(div);
