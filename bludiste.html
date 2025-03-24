@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bludiště</title>
+    <title>Bludiště – Rackův herní koutek</title>
     <style>
         body {
             background-color: #5A3825; /* Tmavší hnědá */
@@ -13,6 +13,12 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Celá obrazovka */
+            box-sizing: border-box;
         }
 
         .container {
@@ -20,11 +26,11 @@
         }
 
         h1 {
-            font-size: 3vw;
-            margin-bottom: 20px;
+            font-size: 4vw; /* Obyčejný nadpis */
+            margin: 20px 0;
+            color: orange;
         }
 
-        /* Bludiště */
         .maze {
             display: grid;
             gap: 2px;
@@ -54,11 +60,10 @@
             height: 100%;
         }
 
-        /* Tlačítka */
         button {
             padding: 10px 20px;
             margin: 10px;
-            font-size: 18px;
+            font-size: 1.5vw;
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -72,16 +77,9 @@
         }
 
         .buttons {
-            margin-top: 40px;
-        }
-
-        /* Zpráva o výhře */
-        .message {
             margin-top: 20px;
-            font-size: 2vw;
         }
 
-        /* Ovládací tlačítka na mobilu */
         .controls {
             display: flex;
             flex-direction: column;
@@ -104,14 +102,18 @@
             cursor: pointer;
         }
 
-        /* Responzivní úpravy */
+        .message {
+            margin-top: 20px;
+            font-size: 2vw;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 6vw;
             }
 
             .maze {
-                max-width: 400px; /* Menší bludiště na mobilu */
+                max-width: 400px;
             }
 
             .cell {
@@ -127,6 +129,10 @@
             .message {
                 font-size: 4vw;
             }
+
+            button {
+                font-size: 4vw;
+            }
         }
     </style>
 </head>
@@ -139,7 +145,10 @@
         <!-- Bludiště -->
         <div id="maze" class="maze"></div>
 
-        <!-- Zpráva o výhře -->
+        <!-- Počítadlo kroků -->
+        <div id="steps" class="message">Kroky: 0</div>
+
+        <!-- Zpráva o vítězství -->
         <div id="message" class="message"></div>
 
         <!-- Tlačítka -->
@@ -148,17 +157,17 @@
             <button onclick="window.location.href='index.html'">Hlavní strana</button>
         </div>
 
-        <!-- Ovládací tlačítka pro mobilní zařízení -->
+        <!-- Ovládací tlačítka na mobilu -->
         <div class="controls">
             <div class="control-row">
-                <button class="control-btn" onmousedown="startMove(0, -1)" onmouseup="stopMove()" ontouchstart="startMove(0, -1)" ontouchend="stopMove()">⬆️</button>
+                <button class="control-btn" onclick="movePlayer(0, -1)">⬆️</button>
             </div>
             <div class="control-row">
-                <button class="control-btn" onmousedown="startMove(-1, 0)" onmouseup="stopMove()" ontouchstart="startMove(-1, 0)" ontouchend="stopMove()">⬅️</button>
-                <button class="control-btn" onmousedown="startMove(1, 0)" onmouseup="stopMove()" ontouchstart="startMove(1, 0)" ontouchend="stopMove()">➡️</button>
+                <button class="control-btn" onclick="movePlayer(-1, 0)">⬅️</button>
+                <button class="control-btn" onclick="movePlayer(1, 0)">➡️</button>
             </div>
             <div class="control-row">
-                <button class="control-btn" onmousedown="startMove(0, 1)" onmouseup="stopMove()" ontouchstart="startMove(0, 1)" ontouchend="stopMove()">⬇️</button>
+                <button class="control-btn" onclick="movePlayer(0, 1)">⬇️</button>
             </div>
         </div>
 
@@ -167,24 +176,20 @@
     <script>
         const maze = document.getElementById('maze');
         const message = document.getElementById('message');
-        const size = 25; // Rozměr bludiště
+        const stepsDisplay = document.getElementById('steps');
+        const size = 25;
 
         let mazeLayout = [];
         let playerPosition = { x: 1, y: 1 };
         let goalPosition = { x: size - 2, y: size - 2 };
-        let moveInterval; // Uchování intervalu pro plynulý pohyb
+        let steps = 0;
 
-        // Generování náhodného bludiště
         function generateMaze() {
             mazeLayout = Array(size).fill().map(() => Array(size).fill(1));
 
             function carve(x, y) {
-                const directions = [
-                    [0, -2], [0, 2], [-2, 0], [2, 0]
-                ].sort(() => Math.random() - 0.5);
-
+                const directions = [[0, -2], [0, 2], [-2, 0], [2, 0]].sort(() => Math.random() - 0.5);
                 mazeLayout[y][x] = 0;
-
                 directions.forEach(([dx, dy]) => {
                     const nx = x + dx, ny = y + dy;
                     if (ny > 0 && ny < size - 1 && nx > 0 && nx < size - 1 && mazeLayout[ny][nx] === 1) {
@@ -197,7 +202,6 @@
             carve(1, 1);
         }
 
-        // Vykreslení bludiště
         function drawMaze() {
             maze.innerHTML = '';
             maze.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
@@ -205,60 +209,50 @@
             mazeLayout.forEach((row, y) => {
                 row.forEach((cell, x) => {
                     const div = document.createElement('div');
-                    div.className = 'cell';
-                    div.classList.add(cell === 1 ? 'wall' : 'path');
-
-                    if (x === playerPosition.x && y === playerPosition.y) {
-                        div.innerHTML = `<img src="images/bludiste-hrac.png" alt="hráč">`;
-                    }
-                    if (x === goalPosition.x && y === goalPosition.y) {
-                        div.innerHTML = `<img src="images/bludiste-cil.png" alt="cíl">`;
-                    }
-
+                    div.className = 'cell ' + (cell === 1 ? 'wall' : 'path');
+                    if (x === playerPosition.x && y === playerPosition.y) div.innerHTML = `<img src="images/hrac.png">`;
+                    if (x === goalPosition.x && y === goalPosition.y) div.innerHTML = `<img src="images/cil.png">`;
                     maze.appendChild(div);
                 });
             });
         }
 
-        // Pohyb hráče
         function movePlayer(dx, dy) {
             const newX = playerPosition.x + dx;
             const newY = playerPosition.y + dy;
 
-            if (mazeLayout[newY] && mazeLayout[newY][newX] === 0) {
+            if (mazeLayout[newY]?.[newX] === 0) {
                 playerPosition = { x: newX, y: newY };
+                steps++;
+                stepsDisplay.textContent = `Kroky: ${steps}`;
                 drawMaze();
-                if (newX === goalPosition.x && newY === goalPosition.y) {
-                    message.textContent = '🎉 Gratulujeme, našel/a jsi cestu ven!';
-                    stopMove();
-                }
+                checkWin();
             }
         }
 
-        // Funkce pro plynulý pohyb
-        function startMove(dx, dy) {
-            movePlayer(dx, dy);
-            moveInterval = setInterval(() => movePlayer(dx, dy), 150);
+        function checkWin() {
+            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y) {
+                message.textContent = `🎉 Gratulujeme, našel/a jsi cestu ven! Tvůj kód: ${generateCode()}`;
+            }
         }
 
-        function stopMove() {
-            clearInterval(moveInterval);
+        function generateCode() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
         }
-
-        window.addEventListener('keydown', (event) => {
-            const moves = {
-                'ArrowUp': [0, -1], 'ArrowDown': [0, 1],
-                'ArrowLeft': [-1, 0], 'ArrowRight': [1, 0]
-            };
-            if (moves[event.key]) movePlayer(...moves[event.key]);
-        });
 
         function resetGame() {
             playerPosition = { x: 1, y: 1 };
+            steps = 0;
+            stepsDisplay.textContent = "Kroky: 0";
             generateMaze();
             drawMaze();
             message.textContent = '';
         }
+
+        window.addEventListener('keydown', (e) => {
+            const moves = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+            if (moves[e.key]) movePlayer(...moves[e.key]);
+        });
 
         resetGame();
     </script>
