@@ -71,11 +71,14 @@
             justify-content: center;
         }
 
-        /* Rub kartičky */
+        /* Rub kartičky – loupak01 */
         .card-front {
             background-color: #F4A261; /* Oranžová */
-            color: white;
-            font-size: 3vw;
+        }
+
+        .card-front img {
+            max-width: 80%;
+            height: auto;
         }
 
         /* Líc kartičky */
@@ -122,8 +125,8 @@
                 max-height: 50vh; /* Upravená výška na mobilu */
             }
 
-            .card-front {
-                font-size: 5vw;
+            .card-front img {
+                max-width: 60%;
             }
 
             button {
@@ -203,7 +206,9 @@
                 card.dataset.index = index;
                 card.innerHTML = `
                     <div class="card-inner">
-                        <div class="card-front">?</div>
+                        <div class="card-front">
+                            <img src="loupak01.png" alt="Rub">
+                        </div>
                         <div class="card-back">
                             <img src="images/${image}.png" alt="${image}" style="max-width: 80%; height: auto;">
                         </div>
