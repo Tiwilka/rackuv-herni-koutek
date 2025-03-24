@@ -17,13 +17,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh; /* Celá obrazovka */
+            height: 100vh; /* Celá obrazovka */
             box-sizing: border-box;
             overflow: hidden; /* Skrytí posuvníku */
         }
 
         .container {
-            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
 
         h1 {
@@ -32,22 +35,24 @@
             color: orange;
         }
 
+        /* Responzivní bludiště */
         .maze {
             display: grid;
             gap: 2px;
-            margin: 10px auto;
-            max-width: 80vw; /* Šířka bludiště */
+            margin: 10px 0;
+            /* Dynamická velikost podle obrazovky */
+            width: min(90vw, 90vh);
+            height: min(90vw, 90vh);
         }
 
         .cell {
-            width: 3vw; /* Velikost se přizpůsobí šířce obrazovky */
-            height: 3vw;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 5px;
         }
 
+        /* Barvy prvků */
         .wall {
             background-color: orange; /* Stěna */
         }
@@ -57,13 +62,14 @@
         }
 
         .player {
-            background-color: white; /* Panáček – bílá */
+            background-color: white; /* Panáček */
         }
 
         .goal {
-            background-color: limegreen; /* Cíl – zelená */
+            background-color: limegreen; /* Cíl */
         }
 
+        /* Tlačítka */
         button {
             padding: 8px 16px;
             margin: 5px;
@@ -81,9 +87,10 @@
         }
 
         .buttons {
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
+        /* Ovládací tlačítka */
         .controls {
             display: flex;
             flex-direction: column;
@@ -102,7 +109,7 @@
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 20px;
+            font-size: 2vw;
             cursor: pointer;
         }
 
@@ -111,30 +118,22 @@
             font-size: 2vw;
         }
 
+        /* Responzivní úpravy pro menší obrazovky */
         @media (max-width: 768px) {
             h1 {
                 font-size: 6vw; /* Větší nadpis na mobilu */
             }
 
-            .maze {
-                max-width: 90vw; /* Přizpůsobení bludiště na menší obrazovky */
-            }
-
-            .cell {
-                width: 4vw;
-                height: 4vw;
+            button {
+                font-size: 4vw;
             }
 
             .control-btn {
                 padding: 8px;
-                font-size: 16px;
-            }
-
-            .message {
                 font-size: 4vw;
             }
 
-            button {
+            .message {
                 font-size: 4vw;
             }
         }
@@ -152,7 +151,7 @@
         <!-- Počítadlo kroků -->
         <div id="steps" class="message">Kroky: 0</div>
 
-        <!-- Zpráva o vítězství -->
+        <!-- Zpráva o výhře -->
         <div id="message" class="message"></div>
 
         <!-- Tlačítka -->
@@ -187,7 +186,7 @@
         let playerPosition = { x: 1, y: 1 };
         let goalPosition = { x: size - 2, y: size - 2 };
         let steps = 0;
-        let gameWon = false; // Kontrola, zda hra již byla vyhrána
+        let gameWon = false;
 
         // Generování náhodného bludiště
         function generateMaze() {
@@ -218,13 +217,8 @@
                     const div = document.createElement('div');
                     div.className = 'cell ' + (cell === 1 ? 'wall' : 'path');
 
-                    if (x === playerPosition.x && y === playerPosition.y) {
-                        div.classList.add('player');
-                    }
-
-                    if (x === goalPosition.x && y === goalPosition.y) {
-                        div.classList.add('goal');
-                    }
+                    if (x === playerPosition.x && y === playerPosition.y) div.classList.add('player');
+                    if (x === goalPosition.x && y === goalPosition.y) div.classList.add('goal');
 
                     maze.appendChild(div);
                 });
@@ -233,7 +227,7 @@
 
         // Pohyb hráče
         function movePlayer(dx, dy) {
-            if (gameWon) return; // Zamezení pohybu po výhře
+            if (gameWon) return;
 
             const newX = playerPosition.x + dx;
             const newY = playerPosition.y + dy;
@@ -251,16 +245,14 @@
         function checkWin() {
             if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y && !gameWon) {
                 gameWon = true;
-                message.textContent = `🎉 Gratulujeme, našel/a jsi cestu ven! Tvůj kód: ${generateCode()}`;
+                message.textContent = `🎉 Gratulujeme! Tvůj kód: ${generateCode()}`;
             }
         }
 
-        // Generování unikátního kódu
         function generateCode() {
             return Math.random().toString(36).substring(2, 10).toUpperCase();
         }
 
-        // Reset hry
         function resetGame() {
             playerPosition = { x: 1, y: 1 };
             steps = 0;
