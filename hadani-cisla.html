@@ -116,14 +116,14 @@
     <h1>Hádání čísla</h1>
 
     <div class="difficulty-buttons" id="difficulty-selection">
-        <button onclick="startGame(100)">Hádání čísla od 1 do 100</button>
-        <button onclick="startGame(1000)">Hádání čísla od 1 do 1000</button>
+        <button onclick="startGame(100)">1 - 100</button>
+        <button onclick="startGame(1000)">1 - 1000</button>
     </div>
 
     <div id="game" style="display: none;">
         <p>Hádej číslo mezi <span id="minRange">1</span> a <span id="maxRange"></span></p>
         <input type="number" id="guess" placeholder="Zadej číslo" min="1">
-        <button onclick="checkGuess()">Hádej</button>
+        <button id="guessButton" onclick="checkGuess()">Hádej</button>
 
         <div id="message" class="message"></div>
 
@@ -141,6 +141,7 @@
         let maxAttempts = 15;
         let minRange = 1;
         let maxRangeVal = 100;
+        let gameActive = true;
 
         function startGame(range) {
             document.getElementById('difficulty-selection').style.display = 'none';
@@ -157,14 +158,17 @@
             document.getElementById('message').textContent = '';
             document.getElementById('guess').value = '';
             document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
-            document.querySelector('button').classList.remove('correct', 'wrong', 'hint');
-            document.querySelector('button').style.backgroundColor = 'orange';
+            document.getElementById('guessButton').classList.remove('correct', 'wrong', 'hint');
+            document.getElementById('guessButton').style.backgroundColor = 'orange';
+            gameActive = true;
         }
 
         function checkGuess() {
+            if (!gameActive) return;
+
             const guess = Number(document.getElementById('guess').value);
             const messageElement = document.getElementById('message');
-            const button = document.querySelector('button');
+            const button = document.getElementById('guessButton');
             const attemptsElement = document.getElementById('attempts');
 
             if (isNaN(guess) || guess < minRange || guess > maxRangeVal) {
@@ -180,6 +184,7 @@
                 button.classList.add('win');
                 attemptsElement.textContent = '';
                 button.style.backgroundColor = 'green';
+                gameActive = false;
             } else if (guess < targetNumber) {
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
@@ -187,6 +192,7 @@
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
+                    gameActive = false;
                 }
             } else {
                 if (attempts < maxAttempts) {
@@ -195,23 +201,33 @@
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
+                    gameActive = false;
                 }
             }
 
-            if (attempts === 10 && maxAttempts >= 10) {
+            if (attempts === 10 && maxAttempts >= 10 && gameActive) {
                 messageElement.textContent += ` Nápověda: Číslo je dělitelné 5.`;
                 button.classList.add('hint');
             }
 
-            if (attempts === 12 && maxAttempts >= 12) {
+            if (attempts === 12 && maxAttempts >= 12 && gameActive) {
                 messageElement.textContent += ` Nápověda: Číslo je ${targetNumber % 2 === 0 ? 'sudé' : 'liché'}.`;
                 button.classList.add('hint');
             }
 
             if (attempts >= maxAttempts) {
                 attemptsElement.textContent = `Hra skončila!`;
+                gameActive = false;
             }
         }
+
+        function resetGame() {
+            document.getElementById('difficulty-selection').style.display = 'block';
+            document.getElementById('game').style.display = 'none';
+        }
+
+        startGame(100);
     </script>
+
 </body>
 </html>
