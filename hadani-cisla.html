@@ -70,6 +70,10 @@
             background-color: red;
         }
 
+        .hint {
+            background-color: yellow;
+        }
+
         /* Animace pro správnou odpověď */
         @keyframes winAnimation {
             0% { transform: scale(1); }
@@ -95,13 +99,19 @@
                 font-size: 4vw;
             }
         }
+
+        /* Grafické zobrazení pokusů */
+        .attempts {
+            font-size: 2vw;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
     <h1>Hádání čísla</h1>
 
-    <p>Hádej číslo mezi 1 a 100!</p>
+    <p>Hádej číslo mezi <span id="minRange">1</span> a <span id="maxRange">100</span></p>
 
     <!-- Vstup pro číslo -->
     <input type="number" id="guess" placeholder="Zadej číslo" min="1" max="100">
@@ -110,31 +120,60 @@
     <!-- Zpráva o výsledku -->
     <div id="message" class="message"></div>
 
-    <!-- Tlačítko pro restart -->
+    <!-- Zobrazení počtu pokusů -->
+    <div id="attempts" class="attempts"></div>
+
+    <!-- Tlačítka pro nastavení obtížnosti a počtu pokusů -->
     <div class="buttons">
         <button onclick="resetGame()">Nová hra</button>
+        <button onclick="window.location.href='index.html'">Hlavní strana</button>
     </div>
 
     <script>
         let targetNumber;
         let attempts = 0;
-        const maxAttempts = 10;
+        let maxAttempts = 10;
+        let minRange = 1;
+        let maxRangeVal = 100;
 
+        // Funkce pro nastavení obtížnosti
+        function setDifficulty(difficulty) {
+            if (difficulty === "easy") {
+                minRange = 1;
+                maxRangeVal = 50;
+                maxAttempts = 5;
+            } else if (difficulty === "medium") {
+                minRange = 1;
+                maxRangeVal = 100;
+                maxAttempts = 10;
+            } else if (difficulty === "hard") {
+                minRange = 1;
+                maxRangeVal = 1000;
+                maxAttempts = 15;
+            }
+            document.getElementById("minRange").textContent = minRange;
+            document.getElementById("maxRange").textContent = maxRangeVal;
+        }
+
+        // Funkce pro reset hry
         function resetGame() {
-            targetNumber = Math.floor(Math.random() * 100) + 1;
+            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
             attempts = 0;
             document.getElementById('message').textContent = '';
             document.getElementById('guess').value = '';
-            document.querySelector('button').classList.remove('correct', 'wrong');
+            document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
+            document.querySelector('button').classList.remove('correct', 'wrong', 'hint');
         }
 
+        // Funkce pro kontrolu tipu
         function checkGuess() {
             const guess = Number(document.getElementById('guess').value);
             const messageElement = document.getElementById('message');
             const button = document.querySelector('button');
+            const attemptsElement = document.getElementById('attempts');
 
-            if (isNaN(guess) || guess < 1 || guess > 100) {
-                messageElement.textContent = 'Zadejte číslo mezi 1 a 100!';
+            if (isNaN(guess) || guess < minRange || guess > maxRangeVal) {
+                messageElement.textContent = `Zadejte číslo mezi ${minRange} a ${maxRangeVal}!`;
                 return;
             }
 
@@ -143,12 +182,15 @@
             if (guess === targetNumber) {
                 messageElement.textContent = `Gratuluji! Uhodl/a jsi číslo ${targetNumber} za ${attempts} pokusů!`;
                 button.classList.add('correct');
+                button.classList.add('win');
+                attemptsElement.textContent = '';
             } else if (guess < targetNumber) {
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
                     button.classList.add('wrong');
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
+                    attemptsElement.textContent = '';
                 }
             } else {
                 if (attempts < maxAttempts) {
@@ -156,10 +198,27 @@
                     button.classList.add('wrong');
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
+                    attemptsElement.textContent = '';
                 }
+            }
+
+            if (attempts === 10 && maxAttempts >= 10) {
+                messageElement.textContent += ` Nápověda: Číslo je dělitelné 5.`;
+                button.classList.add('hint');
+            }
+
+            if (attempts === 11 && maxAttempts >= 11) {
+                messageElement.textContent += ` Nápověda: Číslo je ${targetNumber % 2 === 0 ? 'sudé' : 'liché'}.`;
+                button.classList.add('hint');
+            }
+
+            if (attempts >= maxAttempts) {
+                attemptsElement.textContent = `Hra skončila!`;
             }
         }
 
+        // Nastavit výchozí obtížnost
+        setDifficulty("medium");
         resetGame();
     </script>
 
