@@ -144,7 +144,7 @@
         let gameActive = false;
 
         function startGame(range) {
-            maxRangeVal = range;
+            maxRangeVal = range; // Uložení maximální hodnoty pro rozsah
             document.getElementById('difficulty-selection').style.display = 'none';
             document.getElementById("maxRange").textContent = range;
             document.getElementById('game').style.display = 'block';
@@ -153,7 +153,7 @@
         }
 
         function resetGame() {
-            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
+            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange; // Oprava generování náhodného čísla
             attempts = 0;
             document.getElementById('message').textContent = '';
             document.getElementById('guess').value = '';
