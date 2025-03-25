@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hádání čísla</title>
     <style>
-        /* Základní styl */
         body {
             background-color: #5A3825;
             color: orange;
@@ -51,13 +50,11 @@
             transform: scale(1.1);
         }
 
-        /* Zpráva o výsledku */
         .message {
             font-size: 2vw;
             margin-top: 20px;
         }
 
-        /* Úspěchy a zlepšení */
         .buttons {
             margin-top: 20px;
         }
@@ -74,7 +71,6 @@
             background-color: yellow;
         }
 
-        /* Animace pro správnou odpověď */
         @keyframes winAnimation {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
@@ -85,7 +81,6 @@
             animation: winAnimation 1s ease-in-out;
         }
 
-        /* Responzivní úpravy */
         @media (max-width: 768px) {
             h1 {
                 font-size: 6vw;
@@ -100,13 +95,11 @@
             }
         }
 
-        /* Grafické zobrazení pokusů */
         .attempts {
             font-size: 2vw;
             margin-top: 10px;
         }
 
-        /* Výběr obtížnosti */
         .difficulty-buttons {
             margin-top: 20px;
         }
@@ -149,17 +142,15 @@
         let minRange = 1;
         let maxRangeVal = 100;
 
-        // Funkce pro nastartování hry
         function startGame(range) {
-            document.getElementById('difficulty-selection').style.display = 'none'; // Skrýt výběr obtížnosti
+            document.getElementById('difficulty-selection').style.display = 'none';
             document.getElementById("maxRange").textContent = range;
             minRange = 1;
             maxRangeVal = range;
             resetGame();
-            document.getElementById('game').style.display = 'block'; // Zobrazit hru
+            document.getElementById('game').style.display = 'block';
         }
 
-        // Funkce pro reset hry
         function resetGame() {
             targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
             attempts = 0;
@@ -167,10 +158,9 @@
             document.getElementById('guess').value = '';
             document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
             document.querySelector('button').classList.remove('correct', 'wrong', 'hint');
-            document.querySelector('button').style.backgroundColor = 'orange'; // Reset barvy tlačítka
+            document.querySelector('button').style.backgroundColor = 'orange';
         }
 
-        // Funkce pro kontrolu tipu
         function checkGuess() {
             const guess = Number(document.getElementById('guess').value);
             const messageElement = document.getElementById('message');
@@ -184,42 +174,35 @@
 
             attempts++;
 
-            // Odpověď na správný tip
             if (guess === targetNumber) {
                 messageElement.textContent = `Gratuluji! Uhodl/a jsi číslo ${targetNumber} za ${attempts} pokusů!`;
                 button.classList.add('correct');
                 button.classList.add('win');
                 attemptsElement.textContent = '';
-                button.style.backgroundColor = 'green'; // Zelené tlačítko pro správný tip
+                button.style.backgroundColor = 'green';
             } else if (guess < targetNumber) {
-                // Odpověď na příliš nízký tip
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
-                    button.classList.add('wrong');
-                    button.style.backgroundColor = 'red'; // Červené tlačítko pro nízký tip
+                    button.style.backgroundColor = 'red';
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
                 }
             } else {
-                // Odpověď na příliš vysoký tip
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je nižší!`;
-                    button.classList.add('wrong');
-                    button.style.backgroundColor = 'blue'; // Modré tlačítko pro vysoký tip
+                    button.style.backgroundColor = 'blue';
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
                 }
             }
 
-            // Nápověda po 10. pokusu
             if (attempts === 10 && maxAttempts >= 10) {
                 messageElement.textContent += ` Nápověda: Číslo je dělitelné 5.`;
                 button.classList.add('hint');
             }
 
-            // Nápověda po 12. pokusu
             if (attempts === 12 && maxAttempts >= 12) {
                 messageElement.textContent += ` Nápověda: Číslo je ${targetNumber % 2 === 0 ? 'sudé' : 'liché'}.`;
                 button.classList.add('hint');
@@ -230,7 +213,6 @@
             }
         }
 
-        // Nastavit výchozí obtížnost
         startGame(100);
     </script>
 
