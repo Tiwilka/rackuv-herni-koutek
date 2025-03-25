@@ -141,7 +141,7 @@
         let maxAttempts = 15;
         let minRange = 1;
         let maxRangeVal = 100;
-        let gameActive = true;
+        let gameActive = false;
 
         function startGame(range) {
             document.getElementById('difficulty-selection').style.display = 'none';
@@ -150,6 +150,7 @@
             maxRangeVal = range;
             resetGame();
             document.getElementById('game').style.display = 'block';
+            gameActive = true;
         }
 
         function resetGame() {
@@ -224,9 +225,11 @@
         function resetGame() {
             document.getElementById('difficulty-selection').style.display = 'block';
             document.getElementById('game').style.display = 'none';
+            gameActive = false;
         }
 
-        startGame(100);
+        // Zobrazení volby obtížnosti na začátku
+        resetGame();
     </script>
 
 </body>
