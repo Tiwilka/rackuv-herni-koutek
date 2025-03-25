@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bludiště – Rackův herní koutek</title>
+    <style>
+        body {
+            background-color: #5A3825; /* Tmavší hnědá */
+            color: orange; /* Oranžová barva textu */
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Celá obrazovka */
+            box-sizing: border-box;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 4vw; /* Obyčejný nadpis */
+            margin: 20px 0;
+            color: orange;
+        }
+
+        .maze {
+            display: grid;
+            gap: 2px;
+            margin: 20px auto;
+            max-width: 600px; /* Maximální šířka bludiště */
+        }
+
+        .cell {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+        }
+
+        .wall {
+            background-color: orange; /* Stěna */
+        }
+
+        .path {
+            background-color: #5A3825; /* Cesta */
+        }
+
+        /* Menší obrázky – 80 % velikosti buňky */
+        .player img, .goal img {
+            width: 80%;
+            height: 80%;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1.5vw;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: orange;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 20px;
+            background-color: orange;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 2vw;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            .maze {
+                max-width: 400px; /* Menší bludiště na mobilu */
+            }
+
+            .cell {
+                width: 14px;
+                height: 14px;
+            }
+
+            .control-btn {
+                padding: 15px;
+                font-size: 20px;
+            }
+
+            .message {
+                font-size: 4vw;
+            }
+
+            button {
+                font-size: 4vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Bludiště</h1>
+
+        <!-- Bludiště -->
+        <div id="maze" class="maze"></div>
+
+        <!-- Počítadlo kroků -->
+        <div id="steps" class="message">Kroky: 0</div>
+
+        <!-- Zpráva o vítězství -->
+        <div id="message" class="message"></div>
+
+        <!-- Tlačítka -->
+        <div class="buttons">
+            <button onclick="resetGame()">Nová hra</button>
+            <button onclick="window.location.href='index.html'">Hlavní strana</button>
+        </div>
+
+        <!-- Ovládací tlačítka na mobilu -->
+        <div class="controls">
+            <div class="control-row">
+                <button class="control-btn" onclick="movePlayer(0, -1)">⬆️</button>
+            </div>
+            <div class="control-row">
+                <button class="control-btn" onclick="movePlayer(-1, 0)">⬅️</button>
+                <button class="control-btn" onclick="movePlayer(1, 0)">➡️</button>
+            </div>
+            <div class="control-row">
+                <button class="control-btn" onclick="movePlayer(0, 1)">⬇️</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const maze = document.getElementById('maze');
+        const message = document.getElementById('message');
+        const stepsDisplay = document.getElementById('steps');
+        const size = 25;
+
+        let mazeLayout = [];
+        let playerPosition = { x: 1, y: 1 };
+        let goalPosition = { x: size - 2, y: size - 2 };
+        let steps = 0;
+
+        // Generování náhodného bludiště
+        function generateMaze() {
+            mazeLayout = Array(size).fill().map(() => Array(size).fill(1));
+
+            function carve(x, y) {
+                const directions = [[0, -2], [0, 2], [-2, 0], [2, 0]].sort(() => Math.random() - 0.5);
+                mazeLayout[y][x] = 0;
+                directions.forEach(([dx, dy]) => {
+                    const nx = x + dx, ny = y + dy;
+                    if (ny > 0 && ny < size - 1 && nx > 0 && nx < size - 1 && mazeLayout[ny][nx] === 1) {
+                        mazeLayout[y + dy / 2][x + dx / 2] = 0;
+                        carve(nx, ny);
+                    }
+                });
+            }
+
+            carve(1, 1);
+        }
+
+        // Vykreslení bludiště
+        function drawMaze() {
+            maze.innerHTML = '';
+            maze.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+            mazeLayout.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    const div = document.createElement('div');
+                    div.className = 'cell ' + (cell === 1 ? 'wall' : 'path');
+
+                    if (x === playerPosition.x && y === playerPosition.y) {
+                        div.innerHTML = `<img src="images/hrac.png" alt="Hráč" class="player">`;
+                    }
+
+                    if (x === goalPosition.x && y === goalPosition.y) {
+                        div.innerHTML = `<img src="images/cil.png" alt="Cíl" class="goal">`;
+                    }
+
+                    maze.appendChild(div);
+                });
+            });
+        }
+
+        // Pohyb hráče
+        function movePlayer(dx, dy) {
+            const newX = playerPosition.x + dx;
+            const newY = playerPosition.y + dy;
+
+            if (mazeLayout[newY]?.[newX] === 0) {
+                playerPosition = { x: newX, y: newY };
+                steps++;
+                stepsDisplay.textContent = `Kroky: ${steps}`;
+                drawMaze();
+                checkWin();
+            }
+        }
+
+        // Kontrola výhry
+        function checkWin() {
+            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y) {
+                message.textContent = `🎉 Gratulujeme, našel/a jsi cestu ven! Tvůj kód: ${generateCode()}`;
+            }
+        }
+
+        // Generování unikátního kódu
+        function generateCode() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        // Reset hry
+        function resetGame() {
+            playerPosition = { x: 1, y: 1 };
+            steps = 0;
+            stepsDisplay.textContent = "Kroky: 0";
+            generateMaze();
+            drawMaze();
+            message.textContent = '';
+        }
+
+        // Ovládání šipkami na PC
+        window.addEventListener('keydown', (e) => {
+            const moves = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+            if (moves[e.key]) movePlayer(...moves[e.key]);
+        });
+
+        resetGame();
+    </script>
+
+</body>
+
+</html>
