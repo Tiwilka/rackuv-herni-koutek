@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krychlový Labyrint</title>
+    <title>Hádání čísla</title>
     <style>
         /* Základní styl */
         body {
@@ -20,108 +19,66 @@
             justify-content: center;
             height: 100vh;
             box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
         }
 
         h1 {
             font-size: 4vw;
-            margin: 10px 0;
+            margin-bottom: 10px;
             color: orange;
         }
 
-        /* Bludiště */
-        .maze {
-            display: grid;
-            gap: 2px;
-            margin: 10px 0;
-            width: min(80vmin, 600px);
-            height: min(80vmin, 600px);
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-        }
-
-        .cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        input, button {
+            padding: 10px;
+            font-size: 2vw;
+            margin: 10px;
             border-radius: 5px;
-            background-color: #5A3825;
-        }
-
-        /* Barvy prvků */
-        .wall {
-            background-color: orange;
-        }
-
-        .path {
-            background-color: #5A3825;
-        }
-
-        .player {
-            background-color: white;
-        }
-
-        .goal {
-            background-color: limegreen;
-        }
-
-        .number {
-            color: white;
-            font-size: 2vw;
-            font-weight: bold;
-        }
-
-        /* Tlačítka */
-        button {
-            padding: 8px 16px;
-            margin: 5px;
-            font-size: 2vw;
             border: none;
-            border-radius: 10px;
+            outline: none;
             cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        input {
+            width: 200px;
+        }
+
+        button {
             background-color: orange;
             color: white;
-            transition: transform 0.3s;
         }
 
         button:hover {
             transform: scale(1.1);
         }
 
-        /* Ovládací tlačítka */
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .control-row {
-            display: flex;
-            gap: 5px;
-        }
-
-        .control-btn {
-            padding: 10px;
-            background-color: orange;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 2vw;
-            cursor: pointer;
-        }
-
-        /* Zprávy */
+        /* Zpráva o výsledku */
         .message {
-            margin-top: 10px;
             font-size: 2vw;
+            margin-top: 20px;
+        }
+
+        /* Úspěchy a zlepšení */
+        .buttons {
+            margin-top: 20px;
+        }
+
+        .correct {
+            background-color: green;
+        }
+
+        .wrong {
+            background-color: red;
+        }
+
+        /* Animace pro správnou odpověď */
+        @keyframes winAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .win {
+            animation: winAnimation 1s ease-in-out;
         }
 
         /* Responzivní úpravy */
@@ -130,12 +87,7 @@
                 font-size: 6vw;
             }
 
-            .control-btn {
-                padding: 8px;
-                font-size: 4vw;
-            }
-
-            button {
+            input, button {
                 font-size: 4vw;
             }
 
@@ -145,164 +97,71 @@
         }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <h1>Krychlový Labyrint</h1>
+    <h1>Hádání čísla</h1>
 
-        <!-- Bludiště -->
-        <div id="maze" class="maze"></div>
+    <p>Hádej číslo mezi 1 a 100!</p>
 
-        <!-- Počítadlo kroků -->
-        <div id="steps" class="message">Kroky: 0</div>
+    <!-- Vstup pro číslo -->
+    <input type="number" id="guess" placeholder="Zadej číslo" min="1" max="100">
+    <button onclick="checkGuess()">Hádaj</button>
 
-        <!-- Zpráva o výhře -->
-        <div id="message" class="message"></div>
+    <!-- Zpráva o výsledku -->
+    <div id="message" class="message"></div>
 
-        <!-- Tlačítka -->
-        <div class="buttons">
-            <button onclick="resetGame()">Nová hra</button>
-            <button onclick="window.location.href='index.html'">Hlavní strana</button>
-        </div>
-
-        <!-- Ovládací tlačítka na mobilu -->
-        <div class="controls">
-            <div class="control-row">
-                <button class="control-btn" onclick="movePlayer(0, -1)">⬆️</button>
-            </div>
-            <div class="control-row">
-                <button class="control-btn" onclick="movePlayer(-1, 0)">⬅️</button>
-                <button class="control-btn" onclick="movePlayer(1, 0)">➡️</button>
-            </div>
-            <div class="control-row">
-                <button class="control-btn" onclick="movePlayer(0, 1)">⬇️</button>
-            </div>
-        </div>
-
+    <!-- Tlačítko pro restart -->
+    <div class="buttons">
+        <button onclick="resetGame()">Nová hra</button>
     </div>
 
     <script>
-        const maze = document.getElementById('maze');
-        const message = document.getElementById('message');
-        const stepsDisplay = document.getElementById('steps');
-        const size = 5; // Rozměr krychlového labyrintu (5x5)
+        let targetNumber;
+        let attempts = 0;
+        const maxAttempts = 10;
 
-        let mazeLayout = [];
-        let playerPosition = { x: 0, y: 0 }; // Počáteční pozice hráče
-        let goalPosition = { x: size - 1, y: size - 1 }; // Cílová pozice
-        let steps = 0;
-        let gameWon = false;
+        function resetGame() {
+            targetNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            document.getElementById('message').textContent = '';
+            document.getElementById('guess').value = '';
+            document.querySelector('button').classList.remove('correct', 'wrong');
+        }
 
-        // Generování náhodného bludiště
-        function generateMaze() {
-            mazeLayout = Array(size).fill().map(() => Array(size).fill(1)); // 1 = stěna
+        function checkGuess() {
+            const guess = Number(document.getElementById('guess').value);
+            const messageElement = document.getElementById('message');
+            const button = document.querySelector('button');
 
-            // Generování cesty
-            mazeLayout[0][0] = 0; // Startovní bod
-            mazeLayout[size - 1][size - 1] = 0; // Cíl
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                messageElement.textContent = 'Zadejte číslo mezi 1 a 100!';
+                return;
+            }
 
-            // Nastavení náhodných čísel na stěnách
-            for (let y = 0; y < size; y++) {
-                for (let x = 0; x < size; x++) {
-                    if (mazeLayout[y][x] !== 0) {
-                        if (Math.random() > 0.7) {
-                            mazeLayout[y][x] = Math.floor(Math.random() * 9) + 1; // Nastavení čísla na stěně
-                        } else {
-                            mazeLayout[y][x] = 1; // Stěna
-                        }
-                    }
+            attempts++;
+
+            if (guess === targetNumber) {
+                messageElement.textContent = `Gratuluji! Uhodl/a jsi číslo ${targetNumber} za ${attempts} pokusů!`;
+                button.classList.add('correct');
+            } else if (guess < targetNumber) {
+                if (attempts < maxAttempts) {
+                    messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
+                    button.classList.add('wrong');
+                } else {
+                    messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
+                }
+            } else {
+                if (attempts < maxAttempts) {
+                    messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je nižší!`;
+                    button.classList.add('wrong');
+                } else {
+                    messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                 }
             }
         }
 
-        // Vykreslení bludiště
-        function drawMaze() {
-            maze.innerHTML = '';
-            maze.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-            maze.style.gridTemplateRows = `repeat(${size}, 1fr)`;
-
-            mazeLayout.forEach((row, y) => {
-                row.forEach((cell, x) => {
-                    const div = document.createElement('div');
-                    div.className = 'cell ' + (cell === 1 ? 'wall' : 'path');
-
-                    if (x === playerPosition.x && y === playerPosition.y) div.classList.add('player');
-                    if (x === goalPosition.x && y === goalPosition.y) div.classList.add('goal');
-
-                    if (typeof cell === 'number') {
-                        const numberDiv = document.createElement('div');
-                        numberDiv.className = 'number';
-                        numberDiv.textContent = cell;
-                        div.appendChild(numberDiv);
-                    }
-
-                    maze.appendChild(div);
-                });
-            });
-        }
-
-        // Pohyb hráče
-        function movePlayer(dx, dy) {
-            if (gameWon) return;
-
-            const newX = playerPosition.x + dx;
-            const newY = playerPosition.y + dy;
-
-            if (mazeLayout[newY]?.[newX] === 0) { // Pokud je cesta
-                playerPosition = { x: newX, y: newY };
-                steps++;
-                stepsDisplay.textContent = `Kroky: ${steps}`;
-                drawMaze();
-                checkWin();
-            }
-        }
-
-        // Kontrola výhry
-        function checkWin() {
-            if (playerPosition.x === goalPosition.x && playerPosition.y === goalPosition.y && !gameWon) {
-                gameWon = true;
-                message.textContent = `🎉 Gratulujeme! Tvůj kód: ${generateCode()}`;
-            }
-        }
-
-        function generateCode() {
-            return Math.random().toString(36).substring(2, 10).toUpperCase();
-        }
-
-        function resetGame() {
-            playerPosition = { x: 0, y: 0 };
-            steps = 0;
-            gameWon = false;
-            stepsDisplay.textContent = "Kroky: 0";
-            generateMaze();
-            drawMaze();
-            message.textContent = '';
-        }
-
         resetGame();
-
-        // Přidání ovládání klávesnicí (na počítači)
-        document.addEventListener('keydown', (event) => {
-            if (gameWon) return;
-
-            switch (event.key) {
-                case 'ArrowUp':
-                    movePlayer(0, -1);
-                    break;
-                case 'ArrowDown':
-                    movePlayer(0, 1);
-                    break;
-                case 'ArrowLeft':
-                    movePlayer(-1, 0);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(1, 0);
-                    break;
-            }
-        });
     </script>
 
 </body>
-
 </html>
