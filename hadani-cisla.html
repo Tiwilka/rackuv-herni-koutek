@@ -122,25 +122,20 @@
 
     <h1>Hádání čísla</h1>
 
-    <!-- Výběr obtížnosti -->
     <div class="difficulty-buttons" id="difficulty-selection">
         <button onclick="startGame(100)">Hádání čísla od 1 do 100</button>
         <button onclick="startGame(1000)">Hádání čísla od 1 do 1000</button>
     </div>
 
-    <!-- Hra -->
     <div id="game" style="display: none;">
         <p>Hádej číslo mezi <span id="minRange">1</span> a <span id="maxRange"></span></p>
         <input type="number" id="guess" placeholder="Zadej číslo" min="1">
         <button onclick="checkGuess()">Hádej</button>
 
-        <!-- Zpráva o výsledku -->
         <div id="message" class="message"></div>
 
-        <!-- Zobrazení počtu pokusů -->
         <div id="attempts" class="attempts"></div>
 
-        <!-- Tlačítka pro nastavení obtížnosti a počtu pokusů -->
         <div class="buttons">
             <button onclick="resetGame()">Nová hra</button>
             <button onclick="window.location.href='index.html'">Hlavní strana</button>
