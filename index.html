@@ -70,9 +70,13 @@
             transform: scale(1.1); /* Animace při najetí */
         }
 
-        /* Emoji jako ikony */
+        /* Emoji jako ikony – dynamická velikost */
         .game-icon {
-            font-size: 3vw; /* Velikost emoji */
+            font-size: 4vw; /* Ikony se přizpůsobují velikosti boxu */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 4vw;
         }
 
         /* Responzivní úpravy */
@@ -97,6 +101,11 @@
                 font-size: 4vw; /* Menší text */
                 padding: 15px;
             }
+
+            .game-icon {
+                font-size: 6vw; /* Přizpůsobení ikon na mobilu */
+                height: 6vw;
+            }
         }
 
         @media (max-width: 480px) {
@@ -110,15 +119,20 @@
             }
 
             .logo {
-                max-width: 50vw;
+                max-width: 50vw; /* Logo zmenšené pro mobil */
             }
 
             h1 {
-                font-size: 8vw;
+                font-size: 8vw; /* Větší nadpis */
             }
 
             h2 {
-                font-size: 6vw;
+                font-size: 6vw; /* Podnadpis */
+            }
+
+            .game-icon {
+                font-size: 8vw; /* Ikony na velmi malých obrazovkách */
+                height: 8vw;
             }
         }
     </style>
