@@ -8,7 +8,7 @@
     <style>
         /* Základní styl */
         body {
-            background-color: #5A3825; /* Hnědá pozadí */
+            background-color: #5A3825;
             color: orange;
             text-align: center;
             font-family: Arial, sans-serif;
@@ -41,10 +41,10 @@
             display: grid;
             gap: 2px;
             margin: 10px 0;
-            width: min(80vmin, 600px); /* Bludiště maximálně 600px */
+            width: min(80vmin, 600px);
             height: min(80vmin, 600px);
-            grid-template-columns: repeat(5, 1fr); /* Počet sloupců pro krychlový labyrint */
-            grid-template-rows: repeat(5, 1fr); /* Počet řádků pro krychlový labyrint */
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
         }
 
         .cell {
@@ -52,24 +52,24 @@
             align-items: center;
             justify-content: center;
             border-radius: 5px;
-            background-color: #5A3825; /* Cesta */
+            background-color: #5A3825;
         }
 
         /* Barvy prvků */
         .wall {
-            background-color: orange; /* Stěna */
+            background-color: orange;
         }
 
         .path {
-            background-color: #5A3825; /* Cesta */
+            background-color: #5A3825;
         }
 
         .player {
-            background-color: white; /* Panáček */
+            background-color: white;
         }
 
         .goal {
-            background-color: limegreen; /* Cíl */
+            background-color: limegreen;
         }
 
         .number {
@@ -281,6 +281,26 @@
         }
 
         resetGame();
+
+        // Přidání ovládání klávesnicí (na počítači)
+        document.addEventListener('keydown', (event) => {
+            if (gameWon) return;
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    movePlayer(0, -1);
+                    break;
+                case 'ArrowDown':
+                    movePlayer(0, 1);
+                    break;
+                case 'ArrowLeft':
+                    movePlayer(-1, 0);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(1, 0);
+                    break;
+            }
+        });
     </script>
 
 </body>
