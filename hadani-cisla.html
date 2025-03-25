@@ -57,6 +57,17 @@
             margin-top: 20px;
         }
 
+        .attempts {
+            font-size: 2vw;
+            margin-top: 10px;
+        }
+
+        .previous-guesses {
+            font-size: 1.5vw;
+            margin-top: 10px;
+            color: white;
+        }
+
         .buttons {
             margin-top: 20px;
         }
@@ -73,24 +84,6 @@
             background-color: yellow;
         }
 
-        @keyframes winAnimation {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.2);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .win {
-            animation: winAnimation 1s ease-in-out;
-        }
-
         @media (max-width: 768px) {
             h1 {
                 font-size: 6vw;
@@ -104,21 +97,10 @@
             .message {
                 font-size: 4vw;
             }
-        }
 
-        .attempts {
-            font-size: 2vw;
-            margin-top: 10px;
-        }
-
-        .difficulty-buttons {
-            margin-top: 20px;
-        }
-
-        .difficulty-buttons button {
-            font-size: 2vw;
-            padding: 10px;
-            margin: 5px;
+            .previous-guesses {
+                font-size: 3vw;
+            }
         }
     </style>
 </head>
@@ -137,6 +119,8 @@
         <input type="number" id="guess" placeholder="Zadej číslo" min="1">
         <button id="guessButton" onclick="checkGuess()">Hádej</button>
 
+        <div id="previousGuesses" class="previous-guesses"></div>
+
         <div id="message" class="message"></div>
 
         <div id="attempts" class="attempts"></div>
@@ -154,34 +138,35 @@
         let minRange = 1;
         let maxRangeVal;
         let gameActive = false;
+        let previousGuesses = [];
 
-        // Funkce pro spuštění hry s daným rozsahem
         function startGame(range) {
-            maxRangeVal = range; // Nastavení rozsahu
-            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange; // Generování náhodného čísla
+            maxRangeVal = range;
+            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
             document.getElementById('difficulty-selection').style.display = 'none';
             document.getElementById("maxRange").textContent = range;
             document.getElementById('game').style.display = 'block';
             attempts = 0;
+            previousGuesses = [];
             gameActive = true;
 
-            // Resetování zpráv a vstupních polí
             document.getElementById('message').textContent = '';
+            document.getElementById('previousGuesses').textContent = 'Zadaná čísla: ';
             document.getElementById('guess').value = '';
             document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
-            document.getElementById('guessButton').classList.remove('correct', 'wrong', 'hint');
             document.getElementById('guessButton').style.backgroundColor = 'orange';
             document.getElementById('guess').disabled = false;
         }
 
-        // Funkce pro kontrolu hádaného čísla
         function checkGuess() {
             if (!gameActive) return;
 
-            const guess = Number(document.getElementById('guess').value);
+            const guessInput = document.getElementById('guess');
+            const guess = Number(guessInput.value);
             const messageElement = document.getElementById('message');
             const button = document.getElementById('guessButton');
             const attemptsElement = document.getElementById('attempts');
+            const previousGuessesElement = document.getElementById('previousGuesses');
 
             if (isNaN(guess) || guess < minRange || guess > maxRangeVal) {
                 messageElement.textContent = `Zadejte číslo mezi ${minRange} a ${maxRangeVal}!`;
@@ -189,9 +174,17 @@
             }
 
             attempts++;
+            previousGuesses.push(guess);
+            previousGuessesElement.textContent = `Zadaná čísla: ${previousGuesses.join(', ')}`;
+
+            guessInput.value = ''; // Vyčistí vstupní pole
 
             if (guess === targetNumber) {
                 messageElement.textContent = `Gratuluji! Uhodl/a jsi číslo ${targetNumber} za ${attempts} pokusů!`;
+
+                let uniqueCode = generateUniqueCode();
+                messageElement.textContent += ` Váš kód: ${uniqueCode}`;
+
                 button.style.backgroundColor = 'green';
                 document.getElementById('guess').disabled = true;
                 gameActive = false;
@@ -220,7 +213,15 @@
             }
         }
 
-        // Funkce pro reset hry
+        function generateUniqueCode() {
+            let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
         function resetGame() {
             document.getElementById('difficulty-selection').style.display = 'block';
             document.getElementById('game').style.display = 'none';
