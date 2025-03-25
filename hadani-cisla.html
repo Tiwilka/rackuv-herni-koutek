@@ -140,29 +140,27 @@
         let attempts = 0;
         let maxAttempts = 15;
         let minRange = 1;
-        let maxRangeVal; // Opraveno: Proměnná maxRangeVal je nyní inicializována až ve funkci startGame
+        let maxRangeVal;
         let gameActive = false;
 
         function startGame(range) {
+            maxRangeVal = range;
             document.getElementById('difficulty-selection').style.display = 'none';
             document.getElementById("maxRange").textContent = range;
-            minRange = 1;
-            maxRangeVal = range; // Opraveno: maxRangeVal je nyní nastaveno správně
-            resetGame();
             document.getElementById('game').style.display = 'block';
+            resetGame();
             gameActive = true;
         }
 
         function resetGame() {
-            if (maxRangeVal) { // Opraveno: Generování čísla jen pokud je maxRangeVal definováno
-                targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
-            }
+            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
             attempts = 0;
             document.getElementById('message').textContent = '';
             document.getElementById('guess').value = '';
             document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
             document.getElementById('guessButton').classList.remove('correct', 'wrong', 'hint');
             document.getElementById('guessButton').style.backgroundColor = 'orange';
+            document.getElementById('guess').disabled = false; // Povolí zadávání čísel
             gameActive = true;
         }
 
@@ -187,6 +185,7 @@
                 button.classList.add('win');
                 attemptsElement.textContent = '';
                 button.style.backgroundColor = 'green';
+                document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
                 gameActive = false;
             } else if (guess < targetNumber) {
                 if (attempts < maxAttempts) {
@@ -195,6 +194,7 @@
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
+                    document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
                     gameActive = false;
                 }
             } else {
@@ -204,6 +204,7 @@
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
+                    document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
                     gameActive = false;
                 }
             }
@@ -220,6 +221,7 @@
 
             if (attempts >= maxAttempts) {
                 attemptsElement.textContent = `Hra skončila!`;
+                document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
                 gameActive = false;
             }
         }
