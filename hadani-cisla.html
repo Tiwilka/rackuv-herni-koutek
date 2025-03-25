@@ -123,12 +123,12 @@
     <h1>Hádání čísla</h1>
 
     <!-- Výběr obtížnosti -->
-    <div class="difficulty-buttons">
+    <div class="difficulty-buttons" id="difficulty-selection">
         <button onclick="startGame(100)">Hádání čísla od 1 do 100</button>
         <button onclick="startGame(1000)">Hádání čísla od 1 do 1000</button>
     </div>
 
-    <!-- Vstup pro číslo -->
+    <!-- Hra -->
     <div id="game" style="display: none;">
         <p>Hádej číslo mezi <span id="minRange">1</span> a <span id="maxRange"></span></p>
         <input type="number" id="guess" placeholder="Zadej číslo" min="1">
@@ -156,12 +156,12 @@
 
         // Funkce pro nastartování hry
         function startGame(range) {
-            document.querySelector('.difficulty-buttons').style.display = 'none';
+            document.getElementById('difficulty-selection').style.display = 'none'; // Skrýt výběr obtížnosti
+            document.getElementById("maxRange").textContent = range;
             minRange = 1;
             maxRangeVal = range;
-            document.getElementById("maxRange").textContent = maxRangeVal;
             resetGame();
-            document.getElementById('game').style.display = 'block';
+            document.getElementById('game').style.display = 'block'; // Zobrazit hru
         }
 
         // Funkce pro reset hry
@@ -172,6 +172,7 @@
             document.getElementById('guess').value = '';
             document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
             document.querySelector('button').classList.remove('correct', 'wrong', 'hint');
+            document.querySelector('button').style.backgroundColor = 'orange'; // Reset barvy tlačítka
         }
 
         // Funkce pro kontrolu tipu
@@ -194,11 +195,13 @@
                 button.classList.add('correct');
                 button.classList.add('win');
                 attemptsElement.textContent = '';
+                button.style.backgroundColor = 'green'; // Zelené tlačítko pro správný tip
             } else if (guess < targetNumber) {
                 // Odpověď na příliš nízký tip
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
                     button.classList.add('wrong');
+                    button.style.backgroundColor = 'red'; // Červené tlačítko pro nízký tip
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
@@ -208,6 +211,7 @@
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je nižší!`;
                     button.classList.add('wrong');
+                    button.style.backgroundColor = 'blue'; // Modré tlačítko pro vysoký tip
                 } else {
                     messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
                     attemptsElement.textContent = '';
