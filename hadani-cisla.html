@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="cs">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +27,8 @@
             color: orange;
         }
 
-        input, button {
+        input,
+        button {
             padding: 10px;
             font-size: 2vw;
             margin: 10px;
@@ -72,9 +74,17 @@
         }
 
         @keyframes winAnimation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .win {
@@ -86,7 +96,8 @@
                 font-size: 6vw;
             }
 
-            input, button {
+            input,
+            button {
                 font-size: 4vw;
             }
 
@@ -111,6 +122,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <h1>Hádání čísla</h1>
@@ -143,27 +155,26 @@
         let maxRangeVal;
         let gameActive = false;
 
+        // Funkce pro spuštění hry s daným rozsahem
         function startGame(range) {
-            maxRangeVal = range; // Uložení maximální hodnoty pro rozsah
+            maxRangeVal = range; // Nastavení rozsahu
+            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange; // Generování náhodného čísla
             document.getElementById('difficulty-selection').style.display = 'none';
             document.getElementById("maxRange").textContent = range;
             document.getElementById('game').style.display = 'block';
-            resetGame();
-            gameActive = true;
-        }
-
-        function resetGame() {
-            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange; // Oprava generování náhodného čísla
             attempts = 0;
+            gameActive = true;
+
+            // Resetování zpráv a vstupních polí
             document.getElementById('message').textContent = '';
             document.getElementById('guess').value = '';
             document.getElementById('attempts').textContent = `Počet pokusů: ${maxAttempts}`;
             document.getElementById('guessButton').classList.remove('correct', 'wrong', 'hint');
             document.getElementById('guessButton').style.backgroundColor = 'orange';
-            document.getElementById('guess').disabled = false; // Povolí zadávání čísel
-            gameActive = true;
+            document.getElementById('guess').disabled = false;
         }
 
+        // Funkce pro kontrolu hádaného čísla
         function checkGuess() {
             if (!gameActive) return;
 
@@ -181,59 +192,42 @@
 
             if (guess === targetNumber) {
                 messageElement.textContent = `Gratuluji! Uhodl/a jsi číslo ${targetNumber} za ${attempts} pokusů!`;
-                button.classList.add('correct');
-                button.classList.add('win');
-                attemptsElement.textContent = '';
                 button.style.backgroundColor = 'green';
-                document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
+                document.getElementById('guess').disabled = true;
                 gameActive = false;
             } else if (guess < targetNumber) {
-                if (attempts < maxAttempts) {
-                    messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
-                    button.style.backgroundColor = 'red';
-                } else {
-                    messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
-                    attemptsElement.textContent = '';
-                    document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
-                    gameActive = false;
-                }
+                messageElement.textContent = `Číslo je vyšší!`;
+                button.style.backgroundColor = 'red';
             } else {
-                if (attempts < maxAttempts) {
-                    messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je nižší!`;
-                    button.style.backgroundColor = 'blue';
-                } else {
-                    messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
-                    attemptsElement.textContent = '';
-                    document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
-                    gameActive = false;
-                }
+                messageElement.textContent = `Číslo je nižší!`;
+                button.style.backgroundColor = 'blue';
             }
 
-            if (attempts === 10 && maxAttempts >= 10 && gameActive) {
-                messageElement.textContent += ` Nápověda: Číslo je dělitelné 5.`;
-                button.classList.add('hint');
+            attemptsElement.textContent = `Počet pokusů: ${attempts}`;
+
+            if (attempts === 10) {
+                messageElement.textContent += ` Nápověda: Číslo je ${targetNumber % 5 === 0 ? 'dělitelné pěti' : 'nedělitelné pěti'}.`;
             }
 
-            if (attempts === 12 && maxAttempts >= 12 && gameActive) {
+            if (attempts === 12) {
                 messageElement.textContent += ` Nápověda: Číslo je ${targetNumber % 2 === 0 ? 'sudé' : 'liché'}.`;
-                button.classList.add('hint');
             }
 
-            if (attempts >= maxAttempts) {
-                attemptsElement.textContent = `Hra skončila!`;
-                document.getElementById('guess').disabled = true; // Zakáže zadávání čísel
+            if (attempts >= maxAttempts && gameActive) {
+                messageElement.textContent = `Prohrál/a jsi! Správné číslo bylo ${targetNumber}.`;
+                document.getElementById('guess').disabled = true;
                 gameActive = false;
             }
         }
 
+        // Funkce pro reset hry
         function resetGame() {
             document.getElementById('difficulty-selection').style.display = 'block';
             document.getElementById('game').style.display = 'none';
             gameActive = false;
         }
-
-        // Zobrazení volby obtížnosti na začátku
-        resetGame();
     </script>
+
 </body>
+
 </html>
