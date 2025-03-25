@@ -105,54 +105,63 @@
             font-size: 2vw;
             margin-top: 10px;
         }
+
+        /* Výběr obtížnosti */
+        .difficulty-buttons {
+            margin-top: 20px;
+        }
+
+        .difficulty-buttons button {
+            font-size: 2vw;
+            padding: 10px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
 
     <h1>Hádání čísla</h1>
 
-    <p>Hádej číslo mezi <span id="minRange">1</span> a <span id="maxRange">100</span></p>
+    <!-- Výběr obtížnosti -->
+    <div class="difficulty-buttons">
+        <button onclick="startGame(100)">Hádání čísla od 1 do 100</button>
+        <button onclick="startGame(1000)">Hádání čísla od 1 do 1000</button>
+    </div>
 
     <!-- Vstup pro číslo -->
-    <input type="number" id="guess" placeholder="Zadej číslo" min="1" max="100">
-    <button onclick="checkGuess()">Hádaj</button>
+    <div id="game" style="display: none;">
+        <p>Hádej číslo mezi <span id="minRange">1</span> a <span id="maxRange"></span></p>
+        <input type="number" id="guess" placeholder="Zadej číslo" min="1">
+        <button onclick="checkGuess()">Hádej</button>
 
-    <!-- Zpráva o výsledku -->
-    <div id="message" class="message"></div>
+        <!-- Zpráva o výsledku -->
+        <div id="message" class="message"></div>
 
-    <!-- Zobrazení počtu pokusů -->
-    <div id="attempts" class="attempts"></div>
+        <!-- Zobrazení počtu pokusů -->
+        <div id="attempts" class="attempts"></div>
 
-    <!-- Tlačítka pro nastavení obtížnosti a počtu pokusů -->
-    <div class="buttons">
-        <button onclick="resetGame()">Nová hra</button>
-        <button onclick="window.location.href='index.html'">Hlavní strana</button>
+        <!-- Tlačítka pro nastavení obtížnosti a počtu pokusů -->
+        <div class="buttons">
+            <button onclick="resetGame()">Nová hra</button>
+            <button onclick="window.location.href='index.html'">Hlavní strana</button>
+        </div>
     </div>
 
     <script>
         let targetNumber;
         let attempts = 0;
-        let maxAttempts = 10;
+        let maxAttempts = 15;
         let minRange = 1;
         let maxRangeVal = 100;
 
-        // Funkce pro nastavení obtížnosti
-        function setDifficulty(difficulty) {
-            if (difficulty === "easy") {
-                minRange = 1;
-                maxRangeVal = 50;
-                maxAttempts = 5;
-            } else if (difficulty === "medium") {
-                minRange = 1;
-                maxRangeVal = 100;
-                maxAttempts = 10;
-            } else if (difficulty === "hard") {
-                minRange = 1;
-                maxRangeVal = 1000;
-                maxAttempts = 15;
-            }
-            document.getElementById("minRange").textContent = minRange;
+        // Funkce pro nastartování hry
+        function startGame(range) {
+            document.querySelector('.difficulty-buttons').style.display = 'none';
+            minRange = 1;
+            maxRangeVal = range;
             document.getElementById("maxRange").textContent = maxRangeVal;
+            resetGame();
+            document.getElementById('game').style.display = 'block';
         }
 
         // Funkce pro reset hry
@@ -179,12 +188,14 @@
 
             attempts++;
 
+            // Odpověď na správný tip
             if (guess === targetNumber) {
                 messageElement.textContent = `Gratuluji! Uhodl/a jsi číslo ${targetNumber} za ${attempts} pokusů!`;
                 button.classList.add('correct');
                 button.classList.add('win');
                 attemptsElement.textContent = '';
             } else if (guess < targetNumber) {
+                // Odpověď na příliš nízký tip
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je vyšší!`;
                     button.classList.add('wrong');
@@ -193,6 +204,7 @@
                     attemptsElement.textContent = '';
                 }
             } else {
+                // Odpověď na příliš vysoký tip
                 if (attempts < maxAttempts) {
                     messageElement.textContent = `Počet pokusů: ${attempts}. Číslo je nižší!`;
                     button.classList.add('wrong');
@@ -202,12 +214,14 @@
                 }
             }
 
+            // Nápověda po 10. pokusu
             if (attempts === 10 && maxAttempts >= 10) {
                 messageElement.textContent += ` Nápověda: Číslo je dělitelné 5.`;
                 button.classList.add('hint');
             }
 
-            if (attempts === 11 && maxAttempts >= 11) {
+            // Nápověda po 12. pokusu
+            if (attempts === 12 && maxAttempts >= 12) {
                 messageElement.textContent += ` Nápověda: Číslo je ${targetNumber % 2 === 0 ? 'sudé' : 'liché'}.`;
                 button.classList.add('hint');
             }
@@ -218,8 +232,7 @@
         }
 
         // Nastavit výchozí obtížnost
-        setDifficulty("medium");
-        resetGame();
+        startGame(100);
     </script>
 
 </body>
