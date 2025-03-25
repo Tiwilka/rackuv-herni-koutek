@@ -6,55 +6,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rackův herní koutek</title>
     <style>
+        /* Reset a základní styl */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             background-color: #5A3825; /* Tmavší hnědá */
             color: orange; /* Oranžová barva textu */
             text-align: center;
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box; /* Zajišťuje správné počítání rozměrů */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh; /* Zajištění, že obsah zabere minimálně celou výšku obrazovky */
+            min-height: 100vh; /* Zajištění minimální výšky */
         }
 
         /* Logo */
-        img.logo {
-            max-width: 150px; /* Zajištění správné velikosti loga */
+        .logo {
+            max-width: 20vw; /* Logo se přizpůsobí velikosti obrazovky */
             height: auto;
-            margin-top: 20px;
+            margin: 20px 0;
         }
 
+        /* Nadpisy */
         h1 {
-            margin: 10px 0;
+            font-size: 3vw; /* Velikost nadpisu přizpůsobená */
         }
 
         h2 {
-            margin: 5px 0 20px;
+            font-size: 2vw;
         }
 
-        /* Herní boxy – mřížka */
+        /* Kontejner pro herní boxy */
         .container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 sloupce na velkých obrazovkách */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Přizpůsobivý počet sloupců */
             gap: 20px;
             padding: 20px;
-            max-width: 1200px;
+            max-width: 1200px; /* Max šířka na velkých obrazovkách */
             width: 100%;
-            box-sizing: border-box;
         }
 
-        /* Styl jednotlivých herních boxů */
+        /* Herní box */
         .game-box {
-            background-color: orange;
+            background-color: orange; /* Oranžová barva boxu */
             padding: 20px;
             border-radius: 15px;
             text-decoration: none;
             color: white;
-            font-size: 20px;
+            font-size: 1.8vw; /* Přizpůsobivá velikost textu */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -62,55 +66,60 @@
             transition: transform 0.3s;
         }
 
-        /* Zvýraznění při najetí myší */
         .game-box:hover {
-            transform: scale(1.1);
+            transform: scale(1.1); /* Animace při najetí */
         }
 
-        /* Obrázky v herních boxech – responsivní */
+        /* Ikony v herních boxech */
         .game-box img {
-            width: 80%; /* Obrázky se přizpůsobí šířce boxu */
-            height: auto; /* Zachování poměru stran */
-            max-width: 100px; /* Maximální velikost obrázku */
-            margin-bottom: 10px; /* Mezera pod obrázkem */
+            width: 80px;
+            height: auto;
         }
 
-        /* Responzivní úpravy pro menší zařízení */
+        /* Responzivní úpravy */
         @media (max-width: 768px) {
+            h1 {
+                font-size: 6vw;
+            }
+
+            h2 {
+                font-size: 4vw;
+            }
+
+            .logo {
+                max-width: 40vw; /* Menší logo na menších obrazovkách */
+            }
+
             .container {
-                grid-template-columns: repeat(2, 1fr); /* 2 sloupce na menších obrazovkách */
+                grid-template-columns: repeat(2, 1fr); /* Dva sloupce na mobilu */
             }
 
             .game-box {
-                font-size: 16px; /* Menší text na mobilu */
+                font-size: 4vw; /* Menší text */
                 padding: 15px;
-            }
-
-            img.logo {
-                max-width: 120px; /* Menší logo na mobilu */
             }
         }
 
         @media (max-width: 480px) {
             .container {
-                grid-template-columns: repeat(2, 1fr); /* Zachování dvou sloupců na malých displejích */
+                grid-template-columns: repeat(2, 1fr); /* Zachování dvou sloupců */
             }
 
             .game-box {
-                font-size: 14px; /* Menší text */
+                font-size: 5vw; /* Ještě menší text */
                 padding: 10px;
             }
 
-            img.logo {
-                max-width: 100px; /* Menší logo */
+            .logo {
+                max-width: 50vw;
             }
 
             h1 {
-                font-size: 24px; /* Menší nadpis */
+                font-size: 8vw;
             }
 
             h2 {
-                font-size: 18px; /* Menší podnadpis */
+                font-size: 6vw;
             }
         }
     </style>
@@ -118,60 +127,48 @@
 
 <body>
 
-    <!-- Logo a nadpis -->
-    <img src="images/uvod02.png" alt="Logo Pekárna Racek" class="logo">
+    <!-- Logo a název -->
+    <img src="images/logo.jpg" alt="Logo Pekárna Racek" class="logo">
     <h1>Pekárna Racek</h1>
     <h2>Rackův herní koutek</h2>
 
     <!-- Herní boxy -->
     <div class="container">
         <a href="pexeso.html" class="game-box">
-            <img src="images/ikona.png" alt="Pexeso">
-            Pexeso
+            <img src="images/ikona.png" alt="Pexeso">Pexeso
         </a>
         <a href="sibenice.html" class="game-box">
-            <img src="images/ikona.png" alt="Šibenice">
-            Šibenice
+            <img src="images/ikona.png" alt="Šibenice">Šibenice
         </a>
-        <a href="hadani-cisel.html" class="game-box">
-            <img src="images/ikona.png" alt="Hádaní čísel">
-            Hádaní čísel
+        <a href="hadani-cisla.html" class="game-box">
+            <img src="images/ikona.png" alt="Hádaní čísel">Hádaní čísel
         </a>
         <a href="piskvorky.html" class="game-box">
-            <img src="images/ikona.png" alt="Piškvorky">
-            Piškvorky
+            <img src="images/ikona.png" alt="Piškvorky">Piškvorky
         </a>
         <a href="bludiste.html" class="game-box">
-            <img src="images/ikona.png" alt="Bludiště">
-            Bludiště
+            <img src="images/ikona.png" alt="Bludiště">Bludiště
         </a>
         <a href="barvy.html" class="game-box">
-            <img src="images/ikona.png" alt="Hra s barvami">
-            Hra s barvami
+            <img src="images/ikona.png" alt="Hra s barvami">Hra s barvami
         </a>
         <a href="pameti.html" class="game-box">
-            <img src="images/ikona.png" alt="Test paměti">
-            Test paměti
+            <img src="images/ikona.png" alt="Test paměti">Test paměti
         </a>
         <a href="kalkulacka.html" class="game-box">
-            <img src="images/ikona.png" alt="Počítání příkladů">
-            Počítání příkladů
+            <img src="images/ikona.png" alt="Počítání příkladů">Počítání příkladů
         </a>
         <a href="skladacka.html" class="game-box">
-            <img src="images/ikona.png" alt="Skládačka">
-            Skládačka
+            <img src="images/ikona.png" alt="Skládačka">Skládačka
         </a>
         <a href="slovni-hra.html" class="game-box">
-            <img src="images/ikona.png" alt="Slovní hra">
-            Slovní hra
+            <img src="images/ikona.png" alt="Slovní hra">Slovní hra
         </a>
         <a href="postreh.html" class="game-box">
-            <img src="images/ikona.png" alt="Rychlý postřeh">
-            Rychlý postřeh
+            <img src="images/ikona.png" alt="Rychlý postřeh">Rychlý postřeh
         </a>
         <a href="bludiste2.html" class="game-box">
-            <img src="images/ikona.png" alt="Bludiště 2">
-            Bludiště 2
+            <img src="images/ikona.png" alt="Bludiště 2">Bludiště 2
         </a>
     </div>
 
