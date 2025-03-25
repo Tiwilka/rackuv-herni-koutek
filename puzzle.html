@@ -9,55 +9,92 @@
       font-family: Arial, sans-serif;
       background-color: #f4f4f9;
       text-align: center;
+      color: #5d4037; /* hnědá */
     }
+
+    h1 {
+      color: #e65100; /* oranžová */
+    }
+
     .gallery, .grid {
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-top: 20px;
     }
+
     .gallery img {
-      width: 100px;
-      height: 100px;
-      margin: 5px;
+      width: 120px;
+      height: 120px;
       cursor: pointer;
       border-radius: 8px;
+      border: 2px solid #e65100;
+      transition: transform 0.3s;
     }
+
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+
     .grid {
       flex-wrap: wrap;
       margin-top: 20px;
     }
+
     .grid div {
       width: 100px;
       height: 100px;
       margin: 2px;
-      border: 1px solid #ddd;
+      border: 2px solid #ddd;
       display: inline-block;
       background-size: cover;
       cursor: pointer;
+      transition: background-size 0.3s ease;
     }
+
+    .grid div:hover {
+      background-size: 95%;
+    }
+
     .controls {
       margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
     }
+
     button {
       padding: 10px 20px;
       margin: 5px;
       font-size: 16px;
       cursor: pointer;
       border-radius: 5px;
+      background-color: #e65100; /* oranžová */
+      color: white;
+      border: none;
     }
+
+    button:hover {
+      background-color: #d43f00;
+    }
+
     .hidden {
       visibility: hidden;
+    }
+
+    .info {
+      margin-top: 20px;
+    }
+
+    #info {
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
   <h1>Puzzle Hra</h1>
-  <div class="controls">
-    <button id="startBtn">Nová hra</button>
-    <button id="homeBtn">Hlavní strana</button>
-    <button id="hintBtn" class="hidden">Nápověda</button>
-  </div>
-
+  
   <div class="gallery" id="gallery">
     <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-bily.png" alt="Jog Bily" data-image="jog-bily">
     <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-boruvka.png" alt="Jog Boruvka" data-image="jog-boruvka">
@@ -65,21 +102,31 @@
     <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-visen.png" alt="Jog Visen" data-image="jog-visen">
     <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/tvaroh-bily.png" alt="Tvaroh Bily" data-image="tvaroh-bily">
     <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/tvaroh-coko.png" alt="Tvaroh Coko" data-image="tvaroh-coko">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/chleb-bavor.jpeg" alt="Chleb Bavor" data-image="chleb-bavor">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jemne-babeta.jpeg" alt="Jemne Babeta" data-image="jemne-babeta">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jemne-babvdolek.jpeg" alt="Jemne Babvdolek" data-image="jemne-babvdolek">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/lahudky-bageta.jpeg" alt="Lahudky Bageta" data-image="lahudky-bageta">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/lahudky-croissant.jpeg" alt="Lahudky Croissant" data-image="lahudky-croissant">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/pecivo-mix.jpeg" alt="Pecivo Mix" data-image="pecivo-mix">
   </div>
 
   <div id="puzzle" class="hidden">
     <div class="grid" id="grid"></div>
-    <div id="info">
+    <div id="info" class="info">
       <p>Počet tahů: <span id="moveCounter">0</span></p>
       <p>Čas: <span id="timer">00:00</span></p>
     </div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Nová hra</button>
+    <button id="homeBtn">Hlavní strana</button>
   </div>
 
   <script>
     const gallery = document.getElementById("gallery");
     const startBtn = document.getElementById("startBtn");
     const homeBtn = document.getElementById("homeBtn");
-    const hintBtn = document.getElementById("hintBtn");
     const puzzleContainer = document.getElementById("puzzle");
     const grid = document.getElementById("grid");
     const moveCounter = document.getElementById("moveCounter");
@@ -137,7 +184,6 @@
     // Create the grid for the puzzle
     function createGrid(image) {
       grid.innerHTML = ""; // reset the grid
-      const gridSize = 3; // 3x3 for now
 
       const puzzleImage = new Image();
       puzzleImage.src = `https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/${image}.png`;
