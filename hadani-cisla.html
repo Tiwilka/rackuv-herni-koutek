@@ -140,21 +140,23 @@
         let attempts = 0;
         let maxAttempts = 15;
         let minRange = 1;
-        let maxRangeVal = 100;
+        let maxRangeVal; // Opraveno: Proměnná maxRangeVal je nyní inicializována až ve funkci startGame
         let gameActive = false;
 
         function startGame(range) {
             document.getElementById('difficulty-selection').style.display = 'none';
             document.getElementById("maxRange").textContent = range;
             minRange = 1;
-            maxRangeVal = range;
+            maxRangeVal = range; // Opraveno: maxRangeVal je nyní nastaveno správně
             resetGame();
             document.getElementById('game').style.display = 'block';
             gameActive = true;
         }
 
         function resetGame() {
-            targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
+            if (maxRangeVal) { // Opraveno: Generování čísla jen pokud je maxRangeVal definováno
+                targetNumber = Math.floor(Math.random() * (maxRangeVal - minRange + 1)) + minRange;
+            }
             attempts = 0;
             document.getElementById('message').textContent = '';
             document.getElementById('guess').value = '';
