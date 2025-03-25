@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle Hra</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      text-align: center;
+    }
+    .gallery, .grid {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .gallery img {
+      width: 100px;
+      height: 100px;
+      margin: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .grid {
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .grid div {
+      width: 100px;
+      height: 100px;
+      margin: 2px;
+      border: 1px solid #ddd;
+      display: inline-block;
+      background-size: cover;
+      cursor: pointer;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .hidden {
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+  <h1>Puzzle Hra</h1>
+  <div class="controls">
+    <button id="startBtn">Nová hra</button>
+    <button id="homeBtn">Hlavní strana</button>
+    <button id="hintBtn" class="hidden">Nápověda</button>
+  </div>
+
+  <div class="gallery" id="gallery">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-bily.png" alt="Jog Bily" data-image="jog-bily">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-boruvka.png" alt="Jog Boruvka" data-image="jog-boruvka">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-jahoda.png" alt="Jog Jahoda" data-image="jog-jahoda">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-visen.png" alt="Jog Visen" data-image="jog-visen">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/tvaroh-bily.png" alt="Tvaroh Bily" data-image="tvaroh-bily">
+    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/tvaroh-coko.png" alt="Tvaroh Coko" data-image="tvaroh-coko">
+  </div>
+
+  <div id="puzzle" class="hidden">
+    <div class="grid" id="grid"></div>
+    <div id="info">
+      <p>Počet tahů: <span id="moveCounter">0</span></p>
+      <p>Čas: <span id="timer">00:00</span></p>
+    </div>
+  </div>
+
+  <script>
+    const gallery = document.getElementById("gallery");
+    const startBtn = document.getElementById("startBtn");
+    const homeBtn = document.getElementById("homeBtn");
+    const hintBtn = document.getElementById("hintBtn");
+    const puzzleContainer = document.getElementById("puzzle");
+    const grid = document.getElementById("grid");
+    const moveCounter = document.getElementById("moveCounter");
+    const timerDisplay = document.getElementById("timer");
+
+    let selectedImage = "";
+    let moves = 0;
+    let timer;
+    let timeElapsed = 0;
+    let interval;
+    let gridSize = 3; // default to 3x3
+
+    // Start a new game
+    startBtn.addEventListener("click", () => {
+      if (selectedImage) {
+        startPuzzle(selectedImage);
+      }
+    });
+
+    // Navigate back to the home screen
+    homeBtn.addEventListener("click", () => {
+      puzzleContainer.classList.add("hidden");
+      gallery.classList.remove("hidden");
+      resetGame();
+    });
+
+    // Select an image from the gallery
+    gallery.addEventListener("click", (e) => {
+      if (e.target.tagName === "IMG") {
+        selectedImage = e.target.dataset.image;
+        startBtn.disabled = false;
+        homeBtn.classList.remove("hidden");
+      }
+    });
+
+    // Reset the game state
+    function resetGame() {
+      moves = 0;
+      moveCounter.textContent = moves;
+      clearInterval(interval);
+      timeElapsed = 0;
+      timerDisplay.textContent = "00:00";
+    }
+
+    // Start the puzzle
+    function startPuzzle(image) {
+      gallery.classList.add("hidden");
+      puzzleContainer.classList.remove("hidden");
+
+      gridSize = 3; // default grid size, can be adjusted based on choice
+      createGrid(image);
+      startTimer();
+    }
+
+    // Create the grid for the puzzle
+    function createGrid(image) {
+      grid.innerHTML = ""; // reset the grid
+      const gridSize = 3; // 3x3 for now
+
+      const puzzleImage = new Image();
+      puzzleImage.src = `https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/${image}.png`;
+
+      const pieces = [];
+
+      for (let i = 0; i < gridSize * gridSize; i++) {
+        pieces.push(i);
+      }
+
+      shuffle(pieces);
+
+      pieces.forEach((piece, index) => {
+        const tile = document.createElement("div");
+        tile.style.backgroundImage = `url(${puzzleImage.src})`;
+        tile.style.backgroundPosition = `${-(piece % gridSize) * 100}% ${-Math.floor(piece / gridSize) * 100}%`;
+        tile.setAttribute("draggable", true);
+        tile.setAttribute("data-id", piece);
+        tile.addEventListener("dragstart", handleDragStart);
+        tile.addEventListener("dragover", handleDragOver);
+        tile.addEventListener("drop", handleDrop);
+        grid.appendChild(tile);
+      });
+    }
+
+    // Shuffle the puzzle pieces
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function handleDragStart(e) {
+      e.dataTransfer.setData("text", e.target.getAttribute("data-id"));
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const draggedTileId = e.dataTransfer.getData("text");
+      const droppedTileId = e.target.getAttribute("data-id");
+
+      const draggedTile = document.querySelector(`[data-id='${draggedTileId}']`);
+      const droppedTile = e.target;
+
+      // Swap tiles
+      const tempBackground = draggedTile.style.backgroundImage;
+      draggedTile.style.backgroundImage = droppedTile.style.backgroundImage;
+      droppedTile.style.backgroundImage = tempBackground;
+
+      moves++;
+      moveCounter.textContent = moves;
+    }
+
+    // Timer functionality
+    function startTimer() {
+      interval = setInterval(() => {
+        timeElapsed++;
+        let minutes = Math.floor(timeElapsed / 60);
+        let seconds = timeElapsed % 60;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        timerDisplay.textContent = `${minutes}:${seconds}`;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
