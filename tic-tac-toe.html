@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piškvorky</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .scoreboard {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+            width: max-content;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            background-color: white;
+            border: 2px solid black;
+            cursor: pointer;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Piškvorky</h1>
+    <div class="scoreboard">
+        Výhry: <span id="wins">0</span> | Prohry: <span id="losses">0</span>
+    </div>
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <div class="buttons">
+        <button onclick="resetGame()">Nová hra</button>
+        <button onclick="window.location.href='index.html'">Hlavní strana</button>
+    </div>
+
+    <script>
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X";
+        let wins = 0;
+        let losses = 0;
+
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        document.querySelectorAll(".cell").forEach(cell => {
+            cell.addEventListener("click", () => makeMove(cell));
+        });
+
+        function makeMove(cell) {
+            const index = cell.getAttribute("data-index");
+            if (board[index] === "") {
+                board[index] = currentPlayer;
+                cell.textContent = currentPlayer;
+                if (checkWin()) {
+                    alert(currentPlayer + " vyhrál!");
+                    if (currentPlayer === "X") wins++;
+                    else losses++;
+                    updateScore();
+                    resetBoard();
+                } else if (board.every(cell => cell !== "")) {
+                    alert("Remíza!");
+                    resetBoard();
+                } else {
+                    currentPlayer = currentPlayer === "X" ? "O" : "X";
+                }
+            }
+        }
+
+        function checkWin() {
+            return winPatterns.some(pattern =>
+                pattern.every(index => board[index] === currentPlayer)
+            );
+        }
+
+        function resetBoard() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            document.querySelectorAll(".cell").forEach(cell => cell.textContent = "");
+            currentPlayer = "X";
+        }
+
+        function resetGame() {
+            wins = 0;
+            losses = 0;
+            updateScore();
+            resetBoard();
+        }
+
+        function updateScore() {
+            document.getElementById("wins").textContent = wins;
+            document.getElementById("losses").textContent = losses;
+        }
+    </script>
+</body>
+</html>

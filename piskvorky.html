@@ -1,197 +1,122 @@
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piškvorky</title>
+    <title>Piškvorky 30x30</title>
     <style>
-        body {
-            background-color: #5A3825; /* Tmavší hnědá */
-            color: orange; /* Oranžová barva textu */
-            text-align: center;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 3vw;
-            margin-bottom: 20px;
-        }
-
-        /* Hrací plocha */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; padding: 20px; }
+        h1 { margin-bottom: 20px; }
+        .scoreboard { font-size: 20px; margin-bottom: 15px; }
         .board {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 100%;
-            max-width: 400px; /* Maximální velikost desky */
-            margin: 20px auto; /* Zarovnání na střed */
+            grid-template-columns: repeat(30, 20px);
+            grid-template-rows: repeat(30, 20px);
+            gap: 2px;
+            margin: 20px auto;
+            width: max-content;
         }
-
         .cell {
-            background-color: orange; /* Oranžové boxy */
-            color: white; /* Bílé symboly */
-            font-size: 5vw; /* Přizpůsobivá velikost */
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 15px; /* Zaoblené rohy */
-            aspect-ratio: 1 / 1; /* Čtverec */
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .cell:hover {
-            transform: scale(1.1);
-        }
-
-        /* Tlačítka */
-        input, button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 18px;
-            border: none;
-            border-radius: 10px;
+            font-size: 16px;
+            background-color: white;
+            border: 1px solid black;
             cursor: pointer;
         }
-
-        button {
-            background-color: orange;
-            color: white;
-            transition: transform 0.3s;
-        }
-
-        button:hover {
-            transform: scale(1.1);
-        }
-
-        .buttons {
-            margin-top: 40px;
-        }
-
-        /* Zpráva o výhře/remíze */
-        .message {
-            margin-top: 20px;
-            font-size: 2vw;
-        }
-
-        /* Responzivní úpravy */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 6vw;
-            }
-
-            .cell {
-                font-size: 10vw; /* Větší písmo na mobilu */
-            }
-
-            input, button {
-                padding: 8px 16px;
-                font-size: 16px;
-            }
-
-            .message {
-                font-size: 4vw;
-            }
-        }
+        .buttons { margin-top: 20px; }
+        button { padding: 10px 20px; font-size: 18px; margin: 5px; cursor: pointer; }
     </style>
 </head>
-
 <body>
-
-    <div class="container">
-        <h1>Piškvorky</h1>
-
-        <!-- Hrací deska -->
-        <div class="board" id="board"></div>
-
-        <!-- Zpráva o výsledku hry -->
-        <div id="message" class="message"></div>
-
-        <!-- Tlačítka -->
-        <div class="buttons">
-            <button onclick="resetGame()">Nová hra</button>
-            <button onclick="window.location.href='index.html'">Hlavní strana</button>
-        </div>
+    <h1>Piškvorky 30x30</h1>
+    <div class="scoreboard">
+        Výhry X: <span id="winsX">0</span> | Výhry O: <span id="winsO">0</span>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="buttons">
+        <button onclick="resetGame()">Nová hra</button>
+        <button onclick="window.location.href='index.html'">Hlavní strana</button>
     </div>
 
     <script>
-        // Proměnné
-        const board = document.getElementById('board');
-        const message = document.getElementById('message');
-        let currentPlayer = 'X';
-        let cells = Array(9).fill(null);
-        let gameActive = true;
+        const size = 30;
+        let board = Array(size).fill().map(() => Array(size).fill(""));
+        let currentPlayer = "X";
+        let winsX = 0;
+        let winsO = 0;
 
-        // Vytvoření hrací desky
-        function createBoard() {
-            board.innerHTML = ''; // Vyčištění desky
-            cells.forEach((_, index) => {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.index = index;
-                cell.addEventListener('click', handleMove);
-                board.appendChild(cell);
-            });
-            message.textContent = ''; // Vymazání zprávy o výsledku
-            gameActive = true; // Povolení tahů
-        }
-
-        // Zpracování tahu
-        function handleMove(event) {
-            if (!gameActive) return; // Pokud hra skončila, neprováděj tahy
-
-            const index = event.target.dataset.index;
-            if (cells[index]) return; // Zamezení přepisování
-
-            cells[index] = currentPlayer;
-            event.target.textContent = currentPlayer;
-
-            if (checkWin()) {
-                message.textContent = `${currentPlayer} vyhrává!`;
-                gameActive = false; // Zamezení dalších tahů
-                return;
+        const boardElement = document.getElementById("board");
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener("click", () => makeMove(i, j, cell));
+                boardElement.appendChild(cell);
             }
+        }
 
-            if (cells.every(cell => cell)) {
-                message.textContent = 'Remíza!';
-                gameActive = false; // Zamezení dalších tahů
-                return;
+        function makeMove(row, col, cell) {
+            if (board[row][col] === "") {
+                board[row][col] = currentPlayer;
+                cell.textContent = currentPlayer;
+                if (checkWin(row, col)) {
+                    alert(currentPlayer + " vyhrál!");
+                    if (currentPlayer === "X") winsX++;
+                    else winsO++;
+                    updateScore();
+                    resetBoard();
+                } else {
+                    currentPlayer = currentPlayer === "X" ? "O" : "X";
+                }
             }
-
-            // Přepínání hráče
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
         }
 
-        // Kontrola výhry
-        function checkWin() {
-            const winningCombinations = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Řádky
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Sloupce
-                [0, 4, 8], [2, 4, 6]             // Úhlopříčky
-            ];
-            return winningCombinations.some(combination =>
-                combination.every(index => cells[index] === currentPlayer)
-            );
+        function checkWin(row, col) {
+            return checkDirection(row, col, 1, 0) || checkDirection(row, col, 0, 1) ||
+                   checkDirection(row, col, 1, 1) || checkDirection(row, col, 1, -1);
         }
 
-        // Restart hry
+        function checkDirection(row, col, rowDir, colDir) {
+            let count = 1;
+            for (let i = 1; i < 5; i++) {
+                let r = row + i * rowDir, c = col + i * colDir;
+                if (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === currentPlayer) {
+                    count++;
+                } else break;
+            }
+            for (let i = 1; i < 5; i++) {
+                let r = row - i * rowDir, c = col - i * colDir;
+                if (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === currentPlayer) {
+                    count++;
+                } else break;
+            }
+            return count >= 5;
+        }
+
+        function resetBoard() {
+            board = Array(size).fill().map(() => Array(size).fill(""));
+            document.querySelectorAll(".cell").forEach(cell => cell.textContent = "");
+            currentPlayer = "X";
+        }
+
         function resetGame() {
-            cells = Array(9).fill(null);
-            currentPlayer = 'X';
-            createBoard();
+            winsX = 0;
+            winsO = 0;
+            updateScore();
+            resetBoard();
         }
 
-        // Inicializace hry
-        createBoard();
+        function updateScore() {
+            document.getElementById("winsX").textContent = winsX;
+            document.getElementById("winsO").textContent = winsO;
+        }
     </script>
-
 </body>
-
 </html>
