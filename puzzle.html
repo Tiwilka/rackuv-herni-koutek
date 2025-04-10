@@ -59,8 +59,7 @@
         </select>
         <button id="start-button">Nová Hra</button>
     </div>
-    <div id="puzzle-container">
-        </div>
+    <div id="puzzle-container"></div>
     <div id="message"></div>
 
     <script>
@@ -69,7 +68,7 @@
         const startButton = document.getElementById('start-button');
         const messageElement = document.getElementById('message');
 
-        const imageSrc = 'images/jahoda.jpg'; // Nahraďte cestou k vašemu obrázku
+        const imageSrc = 'images/example.jpg'; // Nahraďte cestou k vašemu obrázku
         let gridSize = 3; // Výchozí velikost mřížky
         let pieces = [];
         let pieceSize;
@@ -78,10 +77,12 @@
         startButton.addEventListener('click', startGame);
         difficultySelect.addEventListener('change', () => {
             gridSize = parseInt(difficultySelect.value);
+            startGame();  // Zajistíme, že se hra restartuje i při změně obtížnosti
         });
 
         function startGame() {
-            puzzleContainer.innerHTML = '';
+            // Resetování herního stavu
+            puzzleContainer.innerHTML = ''; // Vyčistíme předchozí puzzle
             pieces = [];
             originalPositions = [];
             messageElement.textContent = '';
