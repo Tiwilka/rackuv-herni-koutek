@@ -3,62 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle Skládanka</title>
+    <title>Puzzle</title>
     <style>
         body {
             font-family: sans-serif;
+            background-color: #2e1b0f; /* Tmavší hnědá pozadí */
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 20px;
-            background-color: #f0f0f0;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: orange;
+            font-size: 36px;
         }
 
         #controls {
             margin-bottom: 20px;
             display: flex;
-            gap: 10px;
+            gap: 20px;
+            flex-direction: column;
             align-items: center;
+        }
+
+        #difficulty {
+            margin-bottom: 10px;
+        }
+
+        .button {
+            background-color: orange;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
         }
 
         #puzzle-container {
             position: relative;
             border: 2px solid #333;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .puzzle-piece {
             position: absolute;
             border: 1px solid #555;
-            box-sizing: border-box;
             cursor: grab;
-            background-repeat: no-repeat;
-            background-size: cover;
             transition: transform 0.1s ease-in-out;
         }
 
-        .puzzle-piece.dragging {
+        .dragging {
             z-index: 10;
             cursor: grabbing;
-            box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.5);
         }
 
         .correct-position {
             border: 2px solid green;
         }
+
+        #message {
+            font-size: 18px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Puzzle Skládanka</h1>
+    <h1>Puzzle</h1>
     <div id="controls">
         <label for="difficulty">Obtížnost:</label>
         <select id="difficulty">
             <option value="3">3x3</option>
-            <option value="4">4x4</option>
             <option value="5">5x5</option>
+            <option value="8">8x8</option>
         </select>
-        <button id="start-button">Nová Hra</button>
+        <button class="button" id="start-button">Nová hra</button>
+        <button class="button" id="main-page-button" onclick="window.location.href='index.html'">Hlavní strana</button>
     </div>
+
     <div id="puzzle-container"></div>
     <div id="message"></div>
 
@@ -68,37 +99,34 @@
         const startButton = document.getElementById('start-button');
         const messageElement = document.getElementById('message');
 
-        const imageSrc = 'images/example.jpg'; // Nahraďte cestou k vašemu obrázku
+        const images = ['images/jahoda.png', 'images/chleba.png', 'images/bonbon.png'];
+        let selectedImage = images[Math.floor(Math.random() * images.length)];
         let gridSize = 3; // Výchozí velikost mřížky
         let pieces = [];
         let pieceSize;
-        let originalPositions = [];
 
         startButton.addEventListener('click', startGame);
-        difficultySelect.addEventListener('change', () => {
-            gridSize = parseInt(difficultySelect.value);
-            startGame();  // Zajistíme, že se hra restartuje i při změně obtížnosti
-        });
 
         function startGame() {
-            // Resetování herního stavu
-            puzzleContainer.innerHTML = ''; // Vyčistíme předchozí puzzle
+            puzzleContainer.innerHTML = '';
             pieces = [];
-            originalPositions = [];
             messageElement.textContent = '';
-
+            
+            // Vybrat obrázek
+            selectedImage = images[Math.floor(Math.random() * images.length)];
+            
             const img = new Image();
             img.onload = () => {
-                const containerSize = Math.min(400, img.width); // Nastavte maximální velikost kontejneru
+                const containerSize = Math.min(400, img.width); 
                 puzzleContainer.style.width = `${containerSize}px`;
                 puzzleContainer.style.height = `${containerSize}px`;
                 pieceSize = containerSize / gridSize;
-                createPieces(img);
+                createPuzzlePieces(img);
             };
-            img.src = imageSrc;
+            img.src = selectedImage;
         }
 
-        function createPieces(image) {
+        function createPuzzlePieces(image) {
             for (let i = 0; i < gridSize; i++) {
                 for (let j = 0; j < gridSize; j++) {
                     const piece = document.createElement('div');
@@ -109,79 +137,67 @@
                     piece.style.backgroundPosition = `-${j * pieceSize}px -${i * pieceSize}px`;
                     piece.dataset.row = i;
                     piece.dataset.col = j;
-                    piece.dataset.originalX = j * pieceSize;
-                    piece.dataset.originalY = i * pieceSize;
-                    originalPositions.push({ row: i, col: j });
+                    pieces.push(piece);
 
-                    // Umístěte dílky náhodně
+                    // Umístění dílků na náhodná místa
                     const randomX = Math.random() * (puzzleContainer.offsetWidth - pieceSize);
                     const randomY = Math.random() * (puzzleContainer.offsetHeight - pieceSize);
                     piece.style.left = `${randomX}px`;
                     piece.style.top = `${randomY}px`;
 
-                    setupDragAndDrop(piece);
+                    piece.addEventListener('mousedown', (e) => {
+                        piece.classList.add('dragging');
+                        const offsetX = e.clientX - piece.getBoundingClientRect().left;
+                        const offsetY = e.clientY - piece.getBoundingClientRect().top;
+                        document.addEventListener('mousemove', movePiece);
+                        document.addEventListener('mouseup', () => dropPiece(piece, offsetX, offsetY));
+                    });
+
                     puzzleContainer.appendChild(piece);
-                    pieces.push(piece);
                 }
             }
         }
 
-        let draggedPiece = null;
-        let offsetX, offsetY;
-
-        function setupDragAndDrop(piece) {
-            piece.addEventListener('mousedown', (e) => {
-                draggedPiece = piece;
-                piece.classList.add('dragging');
-                offsetX = e.clientX - piece.getBoundingClientRect().left;
-                offsetY = e.clientY - piece.getBoundingClientRect().top;
-            });
+        function movePiece(e) {
+            const piece = document.querySelector('.dragging');
+            if (piece) {
+                piece.style.left = `${e.clientX - pieceSize / 2}px`;
+                piece.style.top = `${e.clientY - pieceSize / 2}px`;
+            }
         }
 
-        document.addEventListener('mousemove', (e) => {
-            if (!draggedPiece) return;
-            const x = e.clientX - offsetX;
-            const y = e.clientY - offsetY;
-            draggedPiece.style.left = `${x}px`;
-            draggedPiece.style.top = `${y}px`;
-        });
+        function dropPiece(piece, offsetX, offsetY) {
+            piece.classList.remove('dragging');
+            const rect = piece.getBoundingClientRect();
+            const tolerance = pieceSize / 4;
+            const targetX = piece.dataset.col * pieceSize;
+            const targetY = piece.dataset.row * pieceSize;
 
-        document.addEventListener('mouseup', () => {
-            if (!draggedPiece) return;
-            draggedPiece.classList.remove('dragging');
-            checkPosition(draggedPiece);
-            draggedPiece = null;
-        });
-
-        function checkPosition(piece) {
-            const pieceRect = piece.getBoundingClientRect();
-            const containerRect = puzzleContainer.getBoundingClientRect();
-            const tolerance = pieceSize / 4; // Tolerance pro umístění
-
-            const targetX = parseInt(piece.dataset.originalX);
-            const targetY = parseInt(piece.dataset.originalY);
-
-            if (
-                Math.abs(pieceRect.left - containerRect.left - targetX) < tolerance &&
-                Math.abs(pieceRect.top - containerRect.top - targetY) < tolerance
-            ) {
+            if (Math.abs(rect.left - targetX) < tolerance && Math.abs(rect.top - targetY) < tolerance) {
                 piece.style.left = `${targetX}px`;
                 piece.style.top = `${targetY}px`;
-                piece.draggable = false; // Zabraňte dalšímu přetahování správně umístěného dílku
                 piece.classList.add('correct-position');
                 checkWin();
+            } else {
+                piece.style.left = `${rect.left - offsetX}px`;
+                piece.style.top = `${rect.top - offsetY}px`;
             }
+
+            document.removeEventListener('mousemove', movePiece);
         }
 
         function checkWin() {
             const correctPieces = document.querySelectorAll('.puzzle-piece.correct-position');
             if (correctPieces.length === gridSize * gridSize) {
-                messageElement.textContent = 'Gratuluji! Složili jste puzzle!';
+                messageElement.textContent = 'Gratuluji! Puzzle bylo složeno!';
+                if (gridSize === 8) generateUniqueCode();
             }
         }
 
-        // Prozatím spustíme hru s výchozí obtížností po načtení stránky
-        startGame();
+        function generateUniqueCode() {
+            const code = Math.random().toString(36).substr(2, 9);
+            messageElement.textContent += ` Kód pro 8x8: ${code}`;
+        }
     </script>
 </body>
 </html>
