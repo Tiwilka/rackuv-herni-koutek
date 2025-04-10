@@ -14,17 +14,19 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background-color: #5a3e2b;
             padding: 20px;
         }
 
         h1 {
             margin-bottom: 20px;
+            color: orange;
         }
 
         .scoreboard {
             font-size: 20px;
             margin-bottom: 15px;
+            color: white;
         }
 
         .board {
@@ -57,6 +59,26 @@
             font-size: 18px;
             margin: 5px;
             cursor: pointer;
+            background-color: orange;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .winner-message {
+            font-size: 22px;
+            color: white;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
         }
     </style>
 </head>
@@ -76,6 +98,7 @@
         <div class="cell" data-index="7"></div>
         <div class="cell" data-index="8"></div>
     </div>
+    <div id="winner" class="winner-message"></div>
     <div class="buttons">
         <button onclick="resetGame()">Nová hra</button>
         <button onclick="window.location.href='index.html'">Hlavní strana</button>
@@ -103,13 +126,13 @@
                 board[index] = currentPlayer;
                 cell.textContent = currentPlayer;
                 if (checkWin()) {
-                    alert(currentPlayer + " vyhrál!");
+                    document.getElementById("winner").textContent = currentPlayer + " vyhrál!";
                     if (currentPlayer === "X") wins++;
                     else losses++;
                     updateScore();
                     resetBoard();
                 } else if (board.every(cell => cell !== "")) {
-                    alert("Remíza!");
+                    document.getElementById("winner").textContent = "Remíza!";
                     resetBoard();
                 } else {
                     currentPlayer = currentPlayer === "X" ? "O" : "X";
@@ -134,6 +157,7 @@
             losses = 0;
             updateScore();
             resetBoard();
+            document.getElementById("winner").textContent = "";
         }
 
         function updateScore() {
