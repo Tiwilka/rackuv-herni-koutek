@@ -39,6 +39,7 @@
             border: none;
             border-radius: 5px;
         }
+        .winner-message { font-size: 22px; color: white; margin-top: 15px; }
         
         @media (max-width: 600px) {
             body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
@@ -51,6 +52,7 @@
         Výhry X: <span id="winsX">0</span> | Výhry O: <span id="winsO">0</span>
     </div>
     <div class="board" id="board"></div>
+    <div id="winner" class="winner-message"></div>
     <div class="buttons">
         <button onclick="resetGame()">Nová hra</button>
         <button onclick="window.location.href='index.html'">Hlavní strana</button>
@@ -64,6 +66,8 @@
         let winsO = 0;
 
         const boardElement = document.getElementById("board");
+        const winnerElement = document.getElementById("winner");
+        
         for (let i = 0; i < size; i++) {
             for (let j = 0; j < size; j++) {
                 const cell = document.createElement("div");
@@ -80,7 +84,7 @@
                 board[row][col] = currentPlayer;
                 cell.textContent = currentPlayer;
                 if (checkWin(row, col)) {
-                    alert(currentPlayer + " vyhrál!");
+                    winnerElement.textContent = currentPlayer + " vyhrál!";
                     if (currentPlayer === "X") winsX++;
                     else winsO++;
                     updateScore();
@@ -124,6 +128,7 @@
             winsO = 0;
             updateScore();
             resetBoard();
+            winnerElement.textContent = "";
         }
 
         function updateScore() {
