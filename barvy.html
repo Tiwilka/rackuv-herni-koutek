@@ -33,10 +33,13 @@
             padding: 10px 20px;
             font-size: 18px;
             cursor: pointer;
-            color: white;
             border: none;
             border-radius: 5px;
             width: 120px;
+        }
+        .main-button {
+            background-color: orange;
+            color: white;
         }
         #score, #timer, #message {
             font-size: 20px;
@@ -58,52 +61,70 @@
     <div id="game-container">
         <div id="color-text">ČERVENÁ</div>
         <div class="buttons" id="color-buttons"></div>
-        <p id="timer">Čas: 3</p>
+        <p id="timer">Čas: 6</p>
         <p id="score">Skóre: 0</p>
         <p id="message"></p>
-        <button onclick="startGame()">Nová hra</button>
+        <button class="main-button" onclick="startGame()">Nová hra</button>
+        <button class="main-button" onclick="window.location.href='index.html'">Hlavní strana</button>
     </div>
     <script>
         const colors = ["ČERVENÁ", "MODRÁ", "ZELENÁ", "ŽLUTÁ", "FIALOVÁ", "ORANŽOVÁ"];
         const colorMap = { "ČERVENÁ": "red", "MODRÁ": "blue", "ZELENÁ": "green", "ŽLUTÁ": "yellow", "FIALOVÁ": "purple", "ORANŽOVÁ": "orange" };
         let score = 0;
-        let timeLeft = 3;
+        let round = 0;
+        let timeLeft = 6;
         let gameInterval;
 
         function startGame() {
             score = 0;
-            timeLeft = 3;
+            round = 0;
+            timeLeft = 6;
             document.getElementById("score").textContent = "Skóre: 0";
             document.getElementById("message").textContent = "";
             nextRound();
             clearInterval(gameInterval);
-            gameInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
-                if (timeLeft <= 0) {
-                    clearInterval(gameInterval);
-                    document.getElementById("message").textContent = "Konec hry! Skóre: " + score;
-                }
-            }, 1000);
+            gameInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                clearInterval(gameInterval);
+                document.getElementById("message").textContent = "Konec hry! Skóre: " + score;
+            }
         }
 
         function nextRound() {
             if (timeLeft <= 0) return;
-            const textColor = colors[Math.floor(Math.random() * colors.length)];
+            round++;
+            if (round > 15) timeLeft = 3;
+            else if (round > 10) timeLeft = 4;
+            else if (round > 5) timeLeft = 5;
+            else timeLeft = 6;
+            
+            document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
+            const correctColor = colors[Math.floor(Math.random() * colors.length)];
             const displayColor = colors[Math.floor(Math.random() * colors.length)];
-            document.getElementById("color-text").textContent = textColor;
+            document.getElementById("color-text").textContent = correctColor;
             document.getElementById("color-text").style.color = colorMap[displayColor];
-            generateButtons(textColor);
+            generateButtons(correctColor);
         }
 
         function generateButtons(correctColor) {
             const buttonsContainer = document.getElementById("color-buttons");
             buttonsContainer.innerHTML = "";
-            let shuffledColors = [...colors].sort(() => 0.5 - Math.random()).slice(0, 3);
+            let shuffledColors = colors.filter(color => color !== correctColor)
+                                       .sort(() => 0.5 - Math.random())
+                                       .slice(0, 2);
+            shuffledColors.push(correctColor);
+            shuffledColors.sort(() => 0.5 - Math.random());
+            
             shuffledColors.forEach(color => {
                 const btn = document.createElement("button");
                 btn.textContent = color;
                 btn.style.backgroundColor = colorMap[color];
+                btn.style.color = "white";
                 btn.onclick = () => checkAnswer(color, correctColor);
                 buttonsContainer.appendChild(btn);
             });
