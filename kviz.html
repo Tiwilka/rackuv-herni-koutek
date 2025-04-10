@@ -64,7 +64,7 @@
         <p id="question">Otázka se načítá...</p>
         <div class="button-container" id="answer-buttons"></div>
         <p id="score">Skóre: 0</p>
-        <p id="timer">Čas: 15</p>
+        <p id="timer">Čas: 45</p>
         <p id="message"></p>
         <button onclick="startGame()">Nová hra</button>
         <button onclick="window.location.href='index.html'">Hlavní stránka</button>
@@ -77,20 +77,44 @@
             { question: "Jaký je název planetky, která je nejblíže Slunci?", answers: ["Mars", "Merkur", "Venus", "Země"], correct: 1 },
             { question: "Kdo napsal román 1984?", answers: ["Aldous Huxley", "George Orwell", "J.K. Rowlingová", "Ernest Hemingway"], correct: 1 },
             { question: "Kdy byla podepsána Magna Charta?", answers: ["1215", "1066", "1492", "1776"], correct: 0 },
-            { question: "Která země je největším producentem kávy na světě?", answers: ["Vietnam", "Kolumbie", "Brazílie", "Etiopie"], correct: 2 }
+            { question: "Která země je největším producentem kávy na světě?", answers: ["Vietnam", "Kolumbie", "Brazílie", "Etiopie"], correct: 2 },
+            { question: "Jaký je hlavní město Francie?", answers: ["Londýn", "Paříž", "Madrid", "Berlín"], correct: 1 },
+            { question: "Co je hlavním symbolem Velikonoc?", answers: ["Velikonoční vejce", "Vánoční stromeček", "Sněhulák", "Dýně"], correct: 0 },
+            { question: "Kolik měsíců má rok?", answers: ["10", "12", "13", "14"], correct: 1 },
+            { question: "Co dělá pták, když má hlad?", answers: ["Letí", "Spí", "Jí", "Zpívá"], correct: 2 },
+            { question: "Jaký je název naší planety?", answers: ["Mars", "Venus", "Země", "Jupiter"], correct: 2 },
+            { question: "Jaká zvířata jsou známá svým schopnostem létat?", answers: ["Kočky", "Ptáci", "Psi", "Králíci"], correct: 1 },
+            { question: "Kolik očí má člověk?", answers: ["1", "2", "3", "4"], correct: 1 },
+            { question: "Jaký je symbol pro vodu?", answers: ["O", "H2O", "O2", "CO2"], correct: 1 },
+            { question: "Co je hlavní ingrediencí v polévce bramboračka?", answers: ["Brambory", "Mrkev", "Cibule", "Rýže"], correct: 0 },
+            { question: "Jaké je hlavní ovoce v pomerančové šťávě?", answers: ["Jablko", "Hruška", "Pomeranč", "Broskev"], correct: 2 },
+            { question: "Kdo je známý jako autor Harryho Pottera?", answers: ["J.R.R. Tolkien", "J.K. Rowlingová", "Stephen King", "George R.R. Martin"], correct: 1 },
+            { question: "Co dělá člověk, když spí?", answers: ["Chodí", "Běhá", "Odpočívá", "Jí"], correct: 2 },
+            { question: "Kolik zubů má dospělý člověk?", answers: ["28", "32", "24", "30"], correct: 1 },
+            { question: "Jaký je název nejvyšší hory na Zemi?", answers: ["Everest", "Kilimandžáro", "Alpy", "Mount Fuji"], correct: 0 },
+            { question: "Co je to krab?", answers: ["Mollusk", "Ryba", "Plaz", "Korýš"], correct: 3 },
+            { question: "Co dělá stonožka?", answers: ["Létá", "Chodí", "Plave", "Skáče"], correct: 1 },
+            { question: "Jaké zvíře je známé svým spánkem v zimě?", answers: ["Ježek", "Medvěd", "Kočka", "Kůň"], correct: 1 },
+            { question: "Jaký je název národního ptáka České republiky?", answers: ["Orlovec", "Sova", "Bald Eagle", "Skřivan"], correct: 3 },
+            { question: "Kolik dní má únor v přestupném roce?", answers: ["28", "29", "30", "31"], correct: 1 },
+            // PŘIDEJTE DALŠÍ OTÁZKY PODLE POTŘEBY (MŮŽETE DOPLNIT AŽ 100 OTÁZEK)
         ];
 
         let currentQuestionIndex = 0;
         let score = 0;
-        let timeLeft = 15;
+        let timeLeft = 45;
         let gameInterval;
         let isGameOver = false;
+        let correctAnswers = [];
+        let wrongAnswers = [];
 
         function startGame() {
             score = 0;
             currentQuestionIndex = 0;
-            timeLeft = 15;
+            timeLeft = 45;
             isGameOver = false;
+            correctAnswers = [];
+            wrongAnswers = [];
             document.getElementById("score").textContent = "Skóre: 0";
             document.getElementById("message").textContent = "";
             document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
@@ -114,7 +138,9 @@
                 return;
             }
 
-            const questionData = questions[currentQuestionIndex];
+            // Randomly select a question
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            const questionData = questions[randomIndex];
             document.getElementById("question").textContent = questionData.question;
             const answerButtons = document.getElementById("answer-buttons");
             answerButtons.innerHTML = '';
@@ -122,16 +148,19 @@
             questionData.answers.forEach((answer, index) => {
                 const button = document.createElement('button');
                 button.textContent = answer;
-                button.onclick = () => checkAnswer(index, questionData.correct);
+                button.onclick = () => checkAnswer(index, questionData.correct, questionData);
                 answerButtons.appendChild(button);
             });
         }
 
-        function checkAnswer(selected, correct) {
+        function checkAnswer(selected, correct, questionData) {
             if (selected === correct) {
                 score++;
-                document.getElementById("score").textContent = `Skóre: ${score}`;
+                correctAnswers.push(questionData.question);
+            } else {
+                wrongAnswers.push(questionData.question);
             }
+            document.getElementById("score").textContent = `Skóre: ${score}`;
             currentQuestionIndex++;
             nextQuestion();
         }
@@ -139,6 +168,20 @@
         function endGame() {
             isGameOver = true;
             document.getElementById("message").textContent = `Konec hry! Vaše skóre: ${score}`;
+            displayResults();
+        }
+
+        function displayResults() {
+            let resultMessage = `<p>Správné odpovědi:</p><ul>`;
+            correctAnswers.forEach(answer => {
+                resultMessage += `<li>${answer}</li>`;
+            });
+            resultMessage += `</ul><p>Špatné odpovědi:</p><ul>`;
+            wrongAnswers.forEach(answer => {
+                resultMessage += `<li>${answer}</li>`;
+            });
+            resultMessage += `</ul>`;
+            document.getElementById("message").innerHTML = resultMessage;
         }
 
         // Spustí hru při načtení stránky
