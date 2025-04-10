@@ -1,48 +1,148 @@
-
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
     <meta charset="UTF-8">
-    <title>Kvíz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Všeobecný kvíz</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        button { margin: 10px; padding: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #3e2b1b;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 48px;
+            color: orange;
+        }
+        #quiz-container {
+            margin-top: 20px;
+        }
+        #question {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            background-color: orange;
+            color: white;
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            width: 200px;
+            margin: 5px;
+        }
+        #score {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        #timer {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        #message {
+            font-size: 20px;
+            color: yellow;
+        }
+        @media (max-width: 600px) {
+            button {
+                width: 150px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
-
 <body>
-    <h1>Kvíz</h1>
-    <div id="question">Načítám otázku...</div>
-    <button onclick="checkAnswer(true)">Pravda</button>
-    <button onclick="checkAnswer(false)">Nepravda</button>
-    <p id="result"></p>
+
+    <h1>Všeobecný kvíz</h1>
+    <div id="quiz-container">
+        <p id="question">Otázka se načítá...</p>
+        <div class="button-container" id="answer-buttons"></div>
+        <p id="score">Skóre: 0</p>
+        <p id="timer">Čas: 15</p>
+        <p id="message"></p>
+        <button onclick="startGame()">Nová hra</button>
+        <button onclick="window.location.href='index.html'">Hlavní stránka</button>
+    </div>
 
     <script>
         const questions = [
-            { question: "Slunce je planeta.", correct: false },
-            { question: "Kočka je savec.", correct: true },
-            { question: "2 + 2 = 5", correct: false }
+            { question: "Jaký je hlavní město České republiky?", answers: ["Brno", "Praha", "Ostrava", "Plzeň"], correct: 1 },
+            { question: "Kolik nohou má pavouk?", answers: ["6", "8", "4", "10"], correct: 1 },
+            { question: "Jaký je název planetky, která je nejblíže Slunci?", answers: ["Mars", "Merkur", "Venus", "Země"], correct: 1 },
+            { question: "Kdo napsal román 1984?", answers: ["Aldous Huxley", "George Orwell", "J.K. Rowlingová", "Ernest Hemingway"], correct: 1 },
+            { question: "Kdy byla podepsána Magna Charta?", answers: ["1215", "1066", "1492", "1776"], correct: 0 },
+            { question: "Která země je největším producentem kávy na světě?", answers: ["Vietnam", "Kolumbie", "Brazílie", "Etiopie"], correct: 2 }
         ];
-        let currentQuestion = 0;
 
-        function loadQuestion() {
-            document.getElementById("question").textContent = questions[currentQuestion].question;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 15;
+        let gameInterval;
+        let isGameOver = false;
+
+        function startGame() {
+            score = 0;
+            currentQuestionIndex = 0;
+            timeLeft = 15;
+            isGameOver = false;
+            document.getElementById("score").textContent = "Skóre: 0";
+            document.getElementById("message").textContent = "";
+            document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
+            nextQuestion();
+            clearInterval(gameInterval);
+            gameInterval = setInterval(updateTimer, 1000);
         }
 
-        function checkAnswer(answer) {
-            const result = document.getElementById("result");
-            if (answer === questions[currentQuestion].correct) {
-                result.textContent = "Správně!";
-            } else {
-                result.textContent = "Špatně!";
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                clearInterval(gameInterval);
+                endGame();
             }
-            currentQuestion = (currentQuestion + 1) % questions.length;
-            setTimeout(loadQuestion, 1000);
         }
 
-        loadQuestion();
+        function nextQuestion() {
+            if (currentQuestionIndex >= questions.length || isGameOver) {
+                endGame();
+                return;
+            }
+
+            const questionData = questions[currentQuestionIndex];
+            document.getElementById("question").textContent = questionData.question;
+            const answerButtons = document.getElementById("answer-buttons");
+            answerButtons.innerHTML = '';
+
+            questionData.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.textContent = answer;
+                button.onclick = () => checkAnswer(index, questionData.correct);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, correct) {
+            if (selected === correct) {
+                score++;
+                document.getElementById("score").textContent = `Skóre: ${score}`;
+            }
+            currentQuestionIndex++;
+            nextQuestion();
+        }
+
+        function endGame() {
+            isGameOver = true;
+            document.getElementById("message").textContent = `Konec hry! Vaše skóre: ${score}`;
+        }
+
+        // Spustí hru při načtení stránky
+        startGame();
     </script>
 </body>
-
 </html>
