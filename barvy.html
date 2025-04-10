@@ -44,6 +44,8 @@
             width: 120px;
             text-align: center;
             white-space: nowrap;
+            word-wrap: break-word;
+            box-sizing: border-box;
         }
         .main-button {
             background-color: orange;
@@ -83,11 +85,13 @@
         let round = 0;
         let timeLeft = 6;
         let gameInterval;
+        let gameOver = false;
 
         function startGame() {
             score = 0;
             round = 0;
             timeLeft = 6;
+            gameOver = false;
             document.getElementById("score").textContent = "Skóre: 0";
             document.getElementById("message").textContent = "";
             nextRound();
@@ -96,22 +100,25 @@
         }
 
         function updateTimer() {
+            if (gameOver) return;
             timeLeft--;
             document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
             if (timeLeft <= 0) {
                 clearInterval(gameInterval);
+                gameOver = true;
                 document.getElementById("message").textContent = "Konec hry! Skóre: " + score;
+                disableButtons();
             }
         }
 
         function nextRound() {
-            if (timeLeft <= 0) return;
+            if (gameOver) return;
             round++;
             if (round > 15) timeLeft = 3;
             else if (round > 10) timeLeft = 4;
             else if (round > 5) timeLeft = 5;
             else timeLeft = 6;
-            
+
             document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
             const correctColor = colors[Math.floor(Math.random() * colors.length)];
             const displayColor = colors[Math.floor(Math.random() * colors.length)];
@@ -128,7 +135,7 @@
                                        .slice(0, 2);
             shuffledColors.push(correctColor);
             shuffledColors.sort(() => 0.5 - Math.random());
-            
+
             shuffledColors.forEach(color => {
                 const btn = document.createElement("button");
                 const buttonText = color;
@@ -147,6 +154,7 @@
         }
 
         function checkAnswer(selected, correct) {
+            if (gameOver) return;
             if (selected === correct) {
                 score++;
                 document.getElementById("score").textContent = "Skóre: " + score;
@@ -160,6 +168,11 @@
         function randomColor() {
             const colors = ["red", "blue", "green", "yellow", "purple", "pink", "brown", "gray"];
             return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function disableButtons() {
+            const buttons = document.querySelectorAll(".buttons button");
+            buttons.forEach(button => button.disabled = true);
         }
     </script>
 </body>
