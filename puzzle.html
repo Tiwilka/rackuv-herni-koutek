@@ -1,257 +1,186 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Puzzle Hra</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      text-align: center;
-      color: #5d4037; /* hnědá */
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Skládanka</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #f0f0f0;
+        }
 
-    h1 {
-      color: #e65100; /* oranžová */
-    }
+        #controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-    .gallery, .grid {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
+        #puzzle-container {
+            position: relative;
+            border: 2px solid #333;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
 
-    .gallery img {
-      width: 120px;
-      height: 120px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: 2px solid #e65100;
-      transition: transform 0.3s;
-    }
+        .puzzle-piece {
+            position: absolute;
+            border: 1px solid #555;
+            box-sizing: border-box;
+            cursor: grab;
+            background-repeat: no-repeat;
+            background-size: cover;
+            transition: transform 0.1s ease-in-out;
+        }
 
-    .gallery img:hover {
-      transform: scale(1.05);
-    }
+        .puzzle-piece.dragging {
+            z-index: 10;
+            cursor: grabbing;
+            box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.5);
+        }
 
-    .grid {
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .grid div {
-      width: 100px;
-      height: 100px;
-      margin: 2px;
-      border: 2px solid #ddd;
-      display: inline-block;
-      background-size: cover;
-      cursor: pointer;
-      transition: background-size 0.3s ease;
-    }
-
-    .grid div:hover {
-      background-size: 95%;
-    }
-
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 5px;
-      background-color: #e65100; /* oranžová */
-      color: white;
-      border: none;
-    }
-
-    button:hover {
-      background-color: #d43f00;
-    }
-
-    .hidden {
-      visibility: hidden;
-    }
-
-    .info {
-      margin-top: 20px;
-    }
-
-    #info {
-      font-size: 18px;
-    }
-  </style>
+        .correct-position {
+            border: 2px solid green;
+        }
+    </style>
 </head>
 <body>
-  <h1>Puzzle Hra</h1>
-  
-  <div class="gallery" id="gallery">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-bily.png" alt="Jog Bily" data-image="jog-bily">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-boruvka.png" alt="Jog Boruvka" data-image="jog-boruvka">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-jahoda.png" alt="Jog Jahoda" data-image="jog-jahoda">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jog-visen.png" alt="Jog Visen" data-image="jog-visen">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/tvaroh-bily.png" alt="Tvaroh Bily" data-image="tvaroh-bily">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/tvaroh-coko.png" alt="Tvaroh Coko" data-image="tvaroh-coko">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/chleb-bavor.jpeg" alt="Chleb Bavor" data-image="chleb-bavor">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jemne-babeta.jpeg" alt="Jemne Babeta" data-image="jemne-babeta">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/jemne-babvdolek.jpeg" alt="Jemne Babvdolek" data-image="jemne-babvdolek">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/lahudky-bageta.jpeg" alt="Lahudky Bageta" data-image="lahudky-bageta">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/lahudky-croissant.jpeg" alt="Lahudky Croissant" data-image="lahudky-croissant">
-    <img src="https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/pecivo-mix.jpeg" alt="Pecivo Mix" data-image="pecivo-mix">
-  </div>
-
-  <div id="puzzle" class="hidden">
-    <div class="grid" id="grid"></div>
-    <div id="info" class="info">
-      <p>Počet tahů: <span id="moveCounter">0</span></p>
-      <p>Čas: <span id="timer">00:00</span></p>
+    <h1>Puzzle Skládanka</h1>
+    <div id="controls">
+        <label for="difficulty">Obtížnost:</label>
+        <select id="difficulty">
+            <option value="3">3x3</option>
+            <option value="4">4x4</option>
+            <option value="5">5x5</option>
+        </select>
+        <button id="start-button">Nová Hra</button>
     </div>
-  </div>
+    <div id="puzzle-container">
+        </div>
+    <div id="message"></div>
 
-  <div class="controls">
-    <button id="startBtn">Nová hra</button>
-    <button id="homeBtn">Hlavní strana</button>
-  </div>
+    <script>
+        const puzzleContainer = document.getElementById('puzzle-container');
+        const difficultySelect = document.getElementById('difficulty');
+        const startButton = document.getElementById('start-button');
+        const messageElement = document.getElementById('message');
 
-  <script>
-    const gallery = document.getElementById("gallery");
-    const startBtn = document.getElementById("startBtn");
-    const homeBtn = document.getElementById("homeBtn");
-    const puzzleContainer = document.getElementById("puzzle");
-    const grid = document.getElementById("grid");
-    const moveCounter = document.getElementById("moveCounter");
-    const timerDisplay = document.getElementById("timer");
+        const imageSrc = 'images/example.jpg'; // Nahraďte cestou k vašemu obrázku
+        let gridSize = 3; // Výchozí velikost mřížky
+        let pieces = [];
+        let pieceSize;
+        let originalPositions = [];
 
-    let selectedImage = "";
-    let moves = 0;
-    let timer;
-    let timeElapsed = 0;
-    let interval;
-    let gridSize = 3; // default to 3x3
+        startButton.addEventListener('click', startGame);
+        difficultySelect.addEventListener('change', () => {
+            gridSize = parseInt(difficultySelect.value);
+        });
 
-    // Start a new game
-    startBtn.addEventListener("click", () => {
-      if (selectedImage) {
-        startPuzzle(selectedImage);
-      }
-    });
+        function startGame() {
+            puzzleContainer.innerHTML = '';
+            pieces = [];
+            originalPositions = [];
+            messageElement.textContent = '';
 
-    // Navigate back to the home screen
-    homeBtn.addEventListener("click", () => {
-      puzzleContainer.classList.add("hidden");
-      gallery.classList.remove("hidden");
-      resetGame();
-    });
+            const img = new Image();
+            img.onload = () => {
+                const containerSize = Math.min(400, img.width); // Nastavte maximální velikost kontejneru
+                puzzleContainer.style.width = `${containerSize}px`;
+                puzzleContainer.style.height = `${containerSize}px`;
+                pieceSize = containerSize / gridSize;
+                createPieces(img);
+            };
+            img.src = imageSrc;
+        }
 
-    // Select an image from the gallery
-    gallery.addEventListener("click", (e) => {
-      if (e.target.tagName === "IMG") {
-        selectedImage = e.target.dataset.image;
-        startBtn.disabled = false;
-        homeBtn.classList.remove("hidden");
-      }
-    });
+        function createPieces(image) {
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const piece = document.createElement('div');
+                    piece.classList.add('puzzle-piece');
+                    piece.style.width = `${pieceSize}px`;
+                    piece.style.height = `${pieceSize}px`;
+                    piece.style.backgroundImage = `url('${image.src}')`;
+                    piece.style.backgroundPosition = `-${j * pieceSize}px -${i * pieceSize}px`;
+                    piece.dataset.row = i;
+                    piece.dataset.col = j;
+                    piece.dataset.originalX = j * pieceSize;
+                    piece.dataset.originalY = i * pieceSize;
+                    originalPositions.push({ row: i, col: j });
 
-    // Reset the game state
-    function resetGame() {
-      moves = 0;
-      moveCounter.textContent = moves;
-      clearInterval(interval);
-      timeElapsed = 0;
-      timerDisplay.textContent = "00:00";
-    }
+                    // Umístěte dílky náhodně
+                    const randomX = Math.random() * (puzzleContainer.offsetWidth - pieceSize);
+                    const randomY = Math.random() * (puzzleContainer.offsetHeight - pieceSize);
+                    piece.style.left = `${randomX}px`;
+                    piece.style.top = `${randomY}px`;
 
-    // Start the puzzle
-    function startPuzzle(image) {
-      gallery.classList.add("hidden");
-      puzzleContainer.classList.remove("hidden");
+                    setupDragAndDrop(piece);
+                    puzzleContainer.appendChild(piece);
+                    pieces.push(piece);
+                }
+            }
+        }
 
-      gridSize = 3; // default grid size, can be adjusted based on choice
-      createGrid(image);
-      startTimer();
-    }
+        let draggedPiece = null;
+        let offsetX, offsetY;
 
-    // Create the grid for the puzzle
-    function createGrid(image) {
-      grid.innerHTML = ""; // reset the grid
+        function setupDragAndDrop(piece) {
+            piece.addEventListener('mousedown', (e) => {
+                draggedPiece = piece;
+                piece.classList.add('dragging');
+                offsetX = e.clientX - piece.getBoundingClientRect().left;
+                offsetY = e.clientY - piece.getBoundingClientRect().top;
+            });
+        }
 
-      const puzzleImage = new Image();
-      puzzleImage.src = `https://github.com/Tiwilka/rackuv-herni-koutek/raw/main/images/${image}.png`;
+        document.addEventListener('mousemove', (e) => {
+            if (!draggedPiece) return;
+            const x = e.clientX - offsetX;
+            const y = e.clientY - offsetY;
+            draggedPiece.style.left = `${x}px`;
+            draggedPiece.style.top = `${y}px`;
+        });
 
-      const pieces = [];
+        document.addEventListener('mouseup', () => {
+            if (!draggedPiece) return;
+            draggedPiece.classList.remove('dragging');
+            checkPosition(draggedPiece);
+            draggedPiece = null;
+        });
 
-      for (let i = 0; i < gridSize * gridSize; i++) {
-        pieces.push(i);
-      }
+        function checkPosition(piece) {
+            const pieceRect = piece.getBoundingClientRect();
+            const containerRect = puzzleContainer.getBoundingClientRect();
+            const tolerance = pieceSize / 4; // Tolerance pro umístění
 
-      shuffle(pieces);
+            const targetX = parseInt(piece.dataset.originalX);
+            const targetY = parseInt(piece.dataset.originalY);
 
-      pieces.forEach((piece, index) => {
-        const tile = document.createElement("div");
-        tile.style.backgroundImage = `url(${puzzleImage.src})`;
-        tile.style.backgroundPosition = `${-(piece % gridSize) * 100}% ${-Math.floor(piece / gridSize) * 100}%`;
-        tile.setAttribute("draggable", true);
-        tile.setAttribute("data-id", piece);
-        tile.addEventListener("dragstart", handleDragStart);
-        tile.addEventListener("dragover", handleDragOver);
-        tile.addEventListener("drop", handleDrop);
-        grid.appendChild(tile);
-      });
-    }
+            if (
+                Math.abs(pieceRect.left - containerRect.left - targetX) < tolerance &&
+                Math.abs(pieceRect.top - containerRect.top - targetY) < tolerance
+            ) {
+                piece.style.left = `${targetX}px`;
+                piece.style.top = `${targetY}px`;
+                piece.draggable = false; // Zabraňte dalšímu přetahování správně umístěného dílku
+                piece.classList.add('correct-position');
+                checkWin();
+            }
+        }
 
-    // Shuffle the puzzle pieces
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
+        function checkWin() {
+            const correctPieces = document.querySelectorAll('.puzzle-piece.correct-position');
+            if (correctPieces.length === gridSize * gridSize) {
+                messageElement.textContent = 'Gratuluji! Složili jste puzzle!';
+            }
+        }
 
-    function handleDragStart(e) {
-      e.dataTransfer.setData("text", e.target.getAttribute("data-id"));
-    }
-
-    function handleDragOver(e) {
-      e.preventDefault();
-    }
-
-    function handleDrop(e) {
-      e.preventDefault();
-      const draggedTileId = e.dataTransfer.getData("text");
-      const droppedTileId = e.target.getAttribute("data-id");
-
-      const draggedTile = document.querySelector(`[data-id='${draggedTileId}']`);
-      const droppedTile = e.target;
-
-      // Swap tiles
-      const tempBackground = draggedTile.style.backgroundImage;
-      draggedTile.style.backgroundImage = droppedTile.style.backgroundImage;
-      droppedTile.style.backgroundImage = tempBackground;
-
-      moves++;
-      moveCounter.textContent = moves;
-    }
-
-    // Timer functionality
-    function startTimer() {
-      interval = setInterval(() => {
-        timeElapsed++;
-        let minutes = Math.floor(timeElapsed / 60);
-        let seconds = timeElapsed % 60;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        timerDisplay.textContent = `${minutes}:${seconds}`;
-      }, 1000);
-    }
-  </script>
+        // Prozatím spustíme hru s výchozí obtížností po načtení stránky
+        startGame();
+    </script>
 </body>
 </html>
