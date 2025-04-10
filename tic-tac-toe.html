@@ -85,7 +85,7 @@
 <body>
     <h1>Piškvorky</h1>
     <div class="scoreboard">
-        Výhry: <span id="wins">0</span> | Prohry: <span id="losses">0</span>
+        Výhry X: <span id="winsX">0</span> | Výhry O: <span id="winsO">0</span>
     </div>
     <div class="board" id="board">
         <div class="cell" data-index="0"></div>
@@ -107,8 +107,8 @@
     <script>
         let board = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X";
-        let wins = 0;
-        let losses = 0;
+        let winsX = 0;
+        let winsO = 0;
 
         const winPatterns = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -127,8 +127,8 @@
                 cell.textContent = currentPlayer;
                 if (checkWin()) {
                     document.getElementById("winner").textContent = currentPlayer + " vyhrál!";
-                    if (currentPlayer === "X") wins++;
-                    else losses++;
+                    if (currentPlayer === "X") winsX++;
+                    else winsO++;
                     updateScore();
                     resetBoard();
                 } else if (board.every(cell => cell !== "")) {
@@ -153,16 +153,16 @@
         }
 
         function resetGame() {
-            wins = 0;
-            losses = 0;
+            winsX = 0;
+            winsO = 0;
             updateScore();
             resetBoard();
             document.getElementById("winner").textContent = "";
         }
 
         function updateScore() {
-            document.getElementById("wins").textContent = wins;
-            document.getElementById("losses").textContent = losses;
+            document.getElementById("winsX").textContent = winsX;
+            document.getElementById("winsO").textContent = winsO;
         }
     </script>
 </body>
