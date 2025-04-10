@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piškvorky 30x30</title>
+    <title>Piškvorky</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; padding: 20px; }
-        h1 { margin-bottom: 20px; }
-        .scoreboard { font-size: 20px; margin-bottom: 15px; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #5a3e2b; padding: 20px; }
+        h1 { margin-bottom: 20px; color: orange; }
+        .scoreboard { font-size: 20px; margin-bottom: 15px; color: white; }
         .board {
             display: grid;
             grid-template-columns: repeat(30, 20px);
@@ -29,11 +29,24 @@
             cursor: pointer;
         }
         .buttons { margin-top: 20px; }
-        button { padding: 10px 20px; font-size: 18px; margin: 5px; cursor: pointer; }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: orange;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 600px) {
+            body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        }
     </style>
 </head>
 <body>
-    <h1>Piškvorky 30x30</h1>
+    <h1>Piškvorky</h1>
     <div class="scoreboard">
         Výhry X: <span id="winsX">0</span> | Výhry O: <span id="winsO">0</span>
     </div>
