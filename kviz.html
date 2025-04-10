@@ -36,6 +36,13 @@
             border-radius: 5px;
             width: 200px;
             margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .correct {
+            background-color: green !important;
+        }
+        .wrong {
+            background-color: red !important;
         }
         #score {
             font-size: 20px;
@@ -49,27 +56,18 @@
             font-size: 20px;
             color: yellow;
         }
-        @media (max-width: 600px) {
-            button {
-                width: 150px;
-                font-size: 16px;
-            }
-        }
     </style>
 </head>
 <body>
-
     <h1>Všeobecný kvíz</h1>
     <div id="quiz-container">
         <p id="question">Otázka se načítá...</p>
         <div class="button-container" id="answer-buttons"></div>
-        <p id="score">Skóre: 0</p>
         <p id="timer">Čas: 45</p>
         <p id="message"></p>
         <button onclick="startGame()">Nová hra</button>
         <button onclick="window.location.href='index.html'">Hlavní stránka</button>
     </div>
-
     <script>
         const questions = [
             { question: "Jaký je hlavní město České republiky?", answers: ["Brno", "Praha", "Ostrava", "Plzeň"], correct: 1 },
@@ -97,25 +95,24 @@
             { question: "Jaké zvíře je známé svým spánkem v zimě?", answers: ["Ježek", "Medvěd", "Kočka", "Kůň"], correct: 1 },
             { question: "Jaký je název národního ptáka České republiky?", answers: ["Orlovec", "Sova", "Bald Eagle", "Skřivan"], correct: 3 },
             { question: "Kolik dní má únor v přestupném roce?", answers: ["28", "29", "30", "31"], correct: 1 },
-            // PŘIDEJTE DALŠÍ OTÁZKY PODLE POTŘEBY (MŮŽETE DOPLNIT AŽ 100 OTÁZEK)
+            { question: "Kolik nohou má pavouk?", answers: ["6", "8", "4", "10"], correct: 1 },
+            { question: "Kdo napsal román 1984?", answers: ["Aldous Huxley", "George Orwell", "J.K. Rowlingová", "Ernest Hemingway"], correct: 1 },
+            { question: "Kolik měsíců má rok?", answers: ["10", "12", "13", "14"], correct: 1 }
         ];
 
-        let currentQuestionIndex = 0;
         let score = 0;
         let timeLeft = 45;
         let gameInterval;
-        let isGameOver = false;
+        let usedQuestions = [];
         let correctAnswers = [];
         let wrongAnswers = [];
 
         function startGame() {
             score = 0;
-            currentQuestionIndex = 0;
             timeLeft = 45;
-            isGameOver = false;
+            usedQuestions = [];
             correctAnswers = [];
             wrongAnswers = [];
-            document.getElementById("score").textContent = "Skóre: 0";
             document.getElementById("message").textContent = "";
             document.getElementById("timer").textContent = `Čas: ${timeLeft}`;
             nextQuestion();
@@ -133,58 +130,54 @@
         }
 
         function nextQuestion() {
-            if (currentQuestionIndex >= questions.length || isGameOver) {
+            if (usedQuestions.length >= questions.length) {
                 endGame();
                 return;
             }
 
-            // Randomly select a question
-            const randomIndex = Math.floor(Math.random() * questions.length);
-            const questionData = questions[randomIndex];
+            let questionData;
+            do {
+                questionData = questions[Math.floor(Math.random() * questions.length)];
+            } while (usedQuestions.includes(questionData));
+            usedQuestions.push(questionData);
+            
             document.getElementById("question").textContent = questionData.question;
             const answerButtons = document.getElementById("answer-buttons");
             answerButtons.innerHTML = '';
-
-            questionData.answers.forEach((answer, index) => {
+            
+            let shuffledAnswers = questionData.answers.map((answer, index) => ({ answer, index }));
+            shuffledAnswers.sort(() => Math.random() - 0.5);
+            
+            shuffledAnswers.forEach(({ answer, index }) => {
                 const button = document.createElement('button');
                 button.textContent = answer;
-                button.onclick = () => checkAnswer(index, questionData.correct, questionData);
+                button.onclick = () => checkAnswer(button, index, questionData.correct, questionData);
                 answerButtons.appendChild(button);
             });
         }
 
-        function checkAnswer(selected, correct, questionData) {
+        function checkAnswer(button, selected, correct, questionData) {
             if (selected === correct) {
                 score++;
-                correctAnswers.push(questionData.question);
+                correctAnswers.push(`${questionData.question} (${questionData.answers[selected]})`);
+                button.classList.add("correct");
             } else {
-                wrongAnswers.push(questionData.question);
+                wrongAnswers.push(`${questionData.question} (${questionData.answers[selected]})`);
+                button.classList.add("wrong");
             }
-            document.getElementById("score").textContent = `Skóre: ${score}`;
-            currentQuestionIndex++;
-            nextQuestion();
+            setTimeout(() => {
+                button.classList.remove("correct", "wrong");
+                nextQuestion();
+            }, 500);
         }
 
         function endGame() {
-            isGameOver = true;
-            document.getElementById("message").textContent = `Konec hry! Vaše skóre: ${score}`;
-            displayResults();
-        }
-
-        function displayResults() {
-            let resultMessage = `<p>Správné odpovědi:</p><ul>`;
-            correctAnswers.forEach(answer => {
-                resultMessage += `<li>${answer}</li>`;
-            });
-            resultMessage += `</ul><p>Špatné odpovědi:</p><ul>`;
-            wrongAnswers.forEach(answer => {
-                resultMessage += `<li>${answer}</li>`;
-            });
-            resultMessage += `</ul>`;
+            let resultMessage = `Skóre: ${score}<br><br>`;
+            resultMessage += "<p>Správné odpovědi:</p><ul>" + correctAnswers.map(a => `<li>${a}</li>`).join('') + "</ul>";
+            resultMessage += "<p>Špatné odpovědi:</p><ul>" + wrongAnswers.map(a => `<li>${a}</li>`).join('') + "</ul>";
             document.getElementById("message").innerHTML = resultMessage;
         }
 
-        // Spustí hru při načtení stránky
         startGame();
     </script>
 </body>
